@@ -48,6 +48,7 @@
   // Exact size of the framed page for every browser; computed sizes for browsers without clamp().
   var modern = window.CSS && CSS.supports && CSS.supports('width', 'clamp(1px, 2px, 3px)');
   function clampTo(low, value, high) { return Math.max(low, Math.min(value, high)); }
+  function flag(name, on) { root.classList[on ? 'add' : 'remove'](name); }
   function fit() {
     var app = document.getElementById('app');
     var h = app ? app.clientHeight : window.innerHeight - 14;
@@ -55,12 +56,18 @@
     var s = root.style;
     s.setProperty('--h', h + 'px');
     s.setProperty('--w', w + 'px');
+    // Measured on the framed page, so phones and the centered window share one rule. Phones lying flat have their own layout.
+    var flat = window.matchMedia && window.matchMedia('(orientation: landscape) and (max-height: 520px)').matches;
+    var compact = !flat && h < 720;
+    var tiny = !flat && h < 610;
+    flag('compact', compact);
+    flag('tiny', tiny);
     if (modern) return;
-    s.setProperty('--u', clampTo(0.84, Math.min(w / 390, h / 680), 1.2) + 'px');
-    s.setProperty('--rv', clampTo(0.6, (h - 240) / 604, 1.2) + 'px');
-    s.setProperty('--logo', clampTo(60, h * 0.152, 150) + 'px');
-    s.setProperty('--gap', clampTo(5, h * 0.012, 12) + 'px');
-    s.setProperty('--pad-y', clampTo(4, h * 0.012, 12) + 'px');
+    s.setProperty('--u', clampTo(0.84, Math.min(w / 390, h / 865), 1.2) + 'px');
+    s.setProperty('--rv', clampTo(0.6, (h - 300) / 700, 1.2) + 'px');
+    s.setProperty('--logo', (tiny ? clampTo(48, (h - 400) * 0.36, 60) : compact ? clampTo(50, h * 0.62 - 322, 96) : clampTo(56, h * 0.13, 130)) + 'px');
+    s.setProperty('--gap', clampTo(4, h * 0.0105, 12) + 'px');
+    s.setProperty('--pad-y', (compact ? clampTo(3, (h - 650) * 0.09, 7) : clampTo(3, h * 0.0105, 12)) + 'px');
   }
   fit();
   window.jahraFit = fit;
@@ -93,11 +100,11 @@
 
   --h: 100vh;
   --w: 100vw;
-  --u: clamp(.84px, min(calc(var(--w) / 390), calc(var(--h) / 680)), 1.2px);
-  --rv: clamp(.6px, calc((var(--h) - 240px) / 604), 1.2px);
-  --logo: clamp(60px, calc(var(--h) * .152), 150px);
-  --gap: clamp(5px, calc(var(--h) * .012), 12px);
-  --pad-y: clamp(4px, calc(var(--h) * .012), 12px);
+  --u: clamp(.84px, min(calc(var(--w) / 390), calc(var(--h) / 865)), 1.2px);
+  --rv: clamp(.6px, calc((var(--h) - 300px) / 700), 1.2px);
+  --logo: clamp(56px, calc(var(--h) * .13), 130px);
+  --gap: clamp(4px, calc(var(--h) * .0105), 12px);
+  --pad-y: clamp(3px, calc(var(--h) * .0105), 12px);
   --beam: clamp(460px, 120vw, 700px);
 }
 @supports (height: 100dvh) { :root { --h: 100dvh } }
@@ -168,8 +175,26 @@ html.wait *, html.wait *::before, html.wait *::after { animation-play-state: pau
   animation: spin 6s linear infinite;
 }
 .hdr-t { transition: opacity .13s ease; animation: up .6s cubic-bezier(.16, 1, .3, 1) 2.95s backwards }
-.app-title { margin: calc(var(--logo) * .17) 0 0; font-size: calc(30 * var(--u)); font-weight: 700; line-height: 1.25; color: var(--ink) }
+.org { margin: calc(var(--logo) * .15) 0 0; font-size: calc(14 * var(--u)); font-weight: 600; line-height: 1.4; color: var(--gold) }
+.app-title { margin: 0; font-size: calc(30 * var(--u)); font-weight: 700; line-height: 1.25; color: var(--ink) }
 .app-tag { margin: calc(2 * var(--u)) 0 0; padding: 0 calc(12 * var(--u)); font-size: calc(14 * var(--u)); font-weight: 400; line-height: 1.5; color: var(--ink-2) }
+
+/* Patronage, set like an official letterhead */
+.lh { padding: calc(7 * var(--u)) calc(14 * var(--u)) 0 }
+.rule { display: block; position: relative; width: calc(176 * var(--u)); max-width: 70%; height: 1px; margin: 0 auto; background: linear-gradient(90deg, transparent, rgba(255, 197, 49, .62), transparent) }
+.rule::after { content: ""; position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; background: var(--gold); transform: rotate(45deg) }
+.lh-line { margin: calc(6 * var(--u)) 0 0; font-size: calc(12.5 * var(--u)); font-size: max(11px, calc(12.5 * var(--u))); line-height: 1.5; color: var(--ink-2); text-wrap: balance }
+.lh-name { margin: calc(1 * var(--u)) 0 0; font-size: calc(17 * var(--u)); font-weight: 700; line-height: 1.4 }
+.foil { color: var(--gold) }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .foil {
+    background: linear-gradient(100deg, var(--gold) 0 38%, #FFF8E4 50%, var(--gold) 62% 100%);
+    background-size: 240% 100%; background-position: 100% 0;
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    animation: foil 5.5s ease-in-out infinite;
+  }
+}
 
 /* Language switch: same corner and order in both languages, so the thumb stays under the finger */
 .lang {
@@ -196,6 +221,7 @@ html[data-lang="ar"] .seg[data-set="ar"], html[data-lang="en"] .seg[data-set="en
 .c2 { --i: 2; --mh: 72;  --c: #FF4D5E; --sf: #3A1426; --t2: #F6CBD3 }
 .c3 { --i: 3; --mh: 78;  --c: #E8EDF2; --sf: #1C2A39; --t2: #D3DEE9 }
 .c4 { --i: 4; --mh: 88;  --c: #2FD37F; --sf: #0B3529; --t2: #BFEBD6 }
+.c5 { --i: 5; --mh: 78;  --c: #B08CFF; --sf: #2A1B52; --t2: #DCCFFB }
 .row {
   position: relative; isolation: isolate; overflow: hidden;
   display: flex; align-items: center;
@@ -216,7 +242,7 @@ html[data-lang="ar"] .seg[data-set="ar"], html[data-lang="en"] .seg[data-set="en
   margin: calc(var(--beam) / -2) 0 0 calc(var(--beam) / -2);
   background: conic-gradient(from 0deg, transparent 0 68%, var(--c) 90%, #FFFFFF 95%, transparent 100%);
   opacity: 0;
-  animation: spin 2.6s linear infinite, lit 13s ease-in-out infinite;
+  animation: spin 2.6s linear infinite, lit 15.6s ease-in-out infinite;
   animation-delay: 0s, calc(3.6s + var(--i) * 2.6s);
 }
 .row::after {
@@ -234,11 +260,16 @@ html[data-lang="ar"] .seg[data-set="ar"], html[data-lang="en"] .seg[data-set="en
 .badge-glow {
   position: absolute; top: -34%; right: -34%; bottom: -34%; left: -34%; border-radius: 50%;
   background: radial-gradient(closest-side, var(--c), transparent);
-  opacity: .28; animation: badgeGlow 13s ease-in-out infinite;
+  opacity: .28; animation: badgeGlow 15.6s ease-in-out infinite;
   animation-delay: calc(3.6s + var(--i) * 2.6s);
 }
 .badge::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: 50%; background: var(--c) }
 .badge svg { position: relative; z-index: 1; display: block; width: calc(24 * var(--u)); height: calc(24 * var(--u)) }
+/* App icon in place of a round badge: same box, so the text lines up with the other buttons */
+.badge.tile { border-radius: 23%; background: #fff }
+.badge.tile::after { border-radius: inherit; background: #fff }
+.badge.tile .badge-glow { border-radius: 34% }
+.badge.tile img { position: relative; z-index: 1; display: block; width: 100%; height: 100%; border-radius: inherit; pointer-events: none }
 .txt { position: relative; z-index: 1; flex: 1 1 auto; min-width: 0; display: block; margin-inline-start: calc(14 * var(--u)); margin-inline-end: calc(8 * var(--u)) }
 .t { display: block; font-size: calc(17 * var(--u)); font-weight: 600; line-height: var(--lh-t) }
 .t.dl { font-size: calc(16.5 * var(--u)) }
@@ -261,7 +292,7 @@ html[dir="rtl"] .chev { transform: scaleX(-1) }
 }
 
 /* Developer credit */
-.ftr { flex: 1 0 auto; display: flex; align-items: center; justify-content: center; padding: clamp(8px, calc(var(--h) * .016), 24px) 8px }
+.ftr { flex: 1 0 auto; display: flex; align-items: center; justify-content: center; padding: clamp(5px, calc(var(--h) * .011), 18px) 8px }
 .credit-wrap { position: relative; display: inline-flex; border-radius: calc(21 * var(--u)) }
 .credit-glow { position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: inherit; box-shadow: 0 0 18px 3px rgba(255, 197, 49, .6); opacity: .3; animation: glow 3.2s ease-in-out infinite }
 .credit {
@@ -316,8 +347,9 @@ html.swap .hdr-t, html.swap .list { opacity: 0 }
 @keyframes up { from { opacity: 0; transform: translateY(14px) } }
 @keyframes rise { from { opacity: 0; transform: translateY(20px) } }
 @keyframes spin { to { transform: rotate(360deg) } }
-@keyframes lit { 0%, 20%, 100% { opacity: 0 } 4%, 16% { opacity: 1 } }
-@keyframes badgeGlow { 0%, 20%, 100% { opacity: .28 } 6%, 14% { opacity: .8 } }
+@keyframes lit { 0%, 16.6%, 100% { opacity: 0 } 3.3%, 13.3% { opacity: 1 } }
+@keyframes badgeGlow { 0%, 16.6%, 100% { opacity: .28 } 5%, 11.6% { opacity: .8 } }
+@keyframes foil { 0%, 45% { background-position: 100% 0 } 100% { background-position: 0 0 } }
 @keyframes glow { 50% { opacity: .75 } }
 @keyframes creditSheen { from { transform: translateX(0) skewX(-18deg) } 45%, to { transform: translateX(520%) skewX(-18deg) } }
 @keyframes gone { to { visibility: hidden } }
@@ -333,7 +365,7 @@ html.swap .hdr-t, html.swap .list { opacity: 0 }
     --edge: 2.5px;
     --R: 40px;
     --pw: clamp(340px, 50vh, 470px);
-    --ph: min(calc(100vh - 44px), 940px);
+    --ph: min(calc(100vh - 28px), 940px);
     --ft: calc((100vh - var(--ph)) / 2);
     --fb: calc((100vh - var(--ph)) / 2);
     --fl: calc((100vw - var(--pw)) / 2);
@@ -343,29 +375,33 @@ html.swap .hdr-t, html.swap .list { opacity: 0 }
   .frame { box-shadow: 0 0 42px rgba(63, 180, 220, .3), 0 30px 70px rgba(0, 0, 0, .5) }
 }
 
-/* Short portrait screens: a smaller emblem and no tagline */
-@media (max-height: 600px) {
-  :root { --logo: clamp(50px, calc(var(--h) * .13), 90px) }
-  .app-tag { display: none }
-}
+/* Phones inside a browser and small laptops: slimmer buttons, a smaller emblem and no tagline */
+html.compact { --pad-y: clamp(3px, calc((var(--h) - 650px) * .09), 7px); --logo: clamp(50px, calc(var(--h) * .62 - 322px), 96px) }
+html.compact .app-tag { display: none }
+html.compact .lh { padding-top: calc(5 * var(--u)) }
+html.compact .lh-line { margin-top: calc(4 * var(--u)) }
 
 /* Very narrow screens such as folded phones: keep the emblem clear of the language switch */
 @media (max-width: 300px) {
-  :root { --logo: 72px }
+  :root, html.compact { --logo: 50px; --gap: 4px }
   .app-tag { display: none }
   .lang { top: 6px; left: 6px }
 }
 
-/* Very short portrait screens: the emblem sits beside the title */
-@media (max-height: 520px) and (orientation: portrait) {
-  :root { --logo: 50px }
-  .hdr { flex-direction: row; align-items: center; text-align: start; padding: 6px 12px }
-  .hdr .orbit, .hdr .hair, .hdr .halo { display: none }
-  .app-title { margin: 0 10px; font-size: calc(21 * var(--u)) }
-  .lang { top: 3px }
-  html[dir="rtl"] .lang { left: 10px; right: auto }
-  html[dir="ltr"] .lang { left: auto; right: 10px }
-}
+/* Very short screens: the emblem sits beside the title */
+html.tiny { --logo: clamp(48px, calc((var(--h) - 400px) * .36), 60px) }
+html.tiny .hdr { flex-flow: row wrap; align-items: center; text-align: start; padding: 5px 12px 2px }
+html.tiny .hdr .orbit, html.tiny .hdr .hair, html.tiny .hdr .halo { display: none }
+html.tiny .hdr-id { flex: 1 1 0; min-width: 0; margin-inline-start: 10px; padding-inline-end: 92px }
+html.tiny .org { margin: 0; font-size: calc(13 * var(--u)) }
+html.tiny .app-title { font-size: calc(21 * var(--u)) }
+html.tiny .lh { flex: 0 0 100%; padding: 2px 0 0; text-align: center }
+html.tiny .rule { display: none }
+html.tiny .lh-line { margin-top: 0 }
+html.tiny .row { min-height: clamp(44px, calc(var(--h) * .09), 50px) }
+html.tiny .lang { top: 3px }
+html.tiny[dir="rtl"] .lang { left: 10px; right: auto }
+html.tiny[dir="ltr"] .lang { left: auto; right: 10px }
 
 /* Phones in landscape: emblem and credit on one side, buttons on the other */
 @media (orientation: landscape) and (max-height: 520px) {
@@ -379,12 +415,25 @@ html.swap .hdr-t, html.swap .list { opacity: 0 }
   .credit { padding: 0 12px; font-size: min(calc(11 * var(--u)), 1.45vw) }
   .row { min-height: 44px }
   .note { margin-top: 2px }
-  .app-title { margin-top: calc(var(--logo) * .12); font-size: calc(22 * var(--u)) }
+  .org { margin-top: calc(var(--logo) * .1); font-size: calc(12.5 * var(--u)) }
+  .app-title { font-size: calc(22 * var(--u)) }
   .app-tag { display: block; font-size: calc(12 * var(--u)) }
+  .lh { padding: calc(4 * var(--u)) 0 0 }
+  .lh-line { margin-top: calc(3 * var(--u)) }
+  .lh-name { font-size: calc(15 * var(--u)) }
+}
+
+/* The shortest phones lying flat: the language switch moves to the corner to free the height */
+@media (orientation: landscape) and (max-height: 350px) {
+  :root { --logo: clamp(44px, calc(var(--h) * .19), 60px); --gap: 3px }
+  .lang { position: absolute; top: 6px; left: 6px; margin: 0 }
+  .app-tag { display: none }
+  .list, html[dir="ltr"] .list { padding-top: 4px; padding-bottom: 4px }
+  .s[data-i18n="androidSub2"] { display: none }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .frame::before, .orbit, .seal, .hdr-t, .row, .row::before, .badge-glow, .credit-glow, .credit::before, .credit-sheen,
+  .frame::before, .orbit, .seal, .hdr-t, .foil, .row, .row::before, .badge-glow, .credit-glow, .credit::before, .credit-sheen,
   .w-bg, .w-seal, .w-in, .w-draw, .w-t1, .w-t2 { animation: none }
   .w-seal { transform: translate(var(--dx), var(--dy)) scale(var(--sc)) }
   .welcome { animation: fadeAll .3s ease 1.4s forwards }
@@ -407,8 +456,16 @@ html.swap .hdr-t, html.swap .list { opacity: 0 }
       <span class="orbit" aria-hidden="true"></span>
       <img id="hdrLogo" src="assets/moh-logo.png" width="560" height="530" alt="شعار وزارة الصحة" data-i18n-alt="logoAlt" draggable="false">
     </div>
-    <h1 class="app-title hdr-t" data-i18n="app">منصة الجهراء</h1>
-    <p class="app-tag hdr-t" data-i18n="tag">خدمات الإيميل والبصمة الذكية</p>
+    <div class="hdr-id">
+      <p class="org hdr-t" data-i18n="org">منطقة الجهراء الصحية</p>
+      <h1 class="app-title hdr-t" data-i18n="app">منصة الجهراء</h1>
+      <p class="app-tag hdr-t" data-i18n="tag">خدمات الإيميل والبصمة الذكية</p>
+    </div>
+    <div class="lh hdr-t">
+      <span class="rule" aria-hidden="true"></span>
+      <p class="lh-line" data-i18n="under">المنصة تحت إشراف ورعاية مدير منطقة الجهراء الصحية</p>
+      <p class="lh-name"><span class="foil" data-i18n="name">الدكتور / أحمد خاجه</span></p>
+    </div>
   </header>
 
   <main class="list">
@@ -449,6 +506,15 @@ html.swap .hdr-t, html.swap .list { opacity: 0 }
         <span class="t dl" data-i18n="dl">تحميل تطبيق البصمة الذكية</span>
         <span class="s" data-i18n="androidSub">Smart Attendance لأجهزة الأندرويد</span>
         <span class="s" data-i18n="androidSub2">لغير أجهزة أبل</span>
+      </span>
+      <span class="chev-w"><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
+    </a>
+
+    <a class="row c5" rel="noopener noreferrer" href="https://apps.apple.com/us/app/salem-%D8%B3%D8%A7%D9%84%D9%85/id1446985492">
+      <span class="badge tile"><span class="badge-glow" aria-hidden="true"></span><img src="assets/salem-logo.png" width="216" height="216" alt="" draggable="false"></span>
+      <span class="txt">
+        <span class="t dl" data-i18n="salem">تحميل تطبيق سالم</span>
+        <span class="s" data-i18n="salemSub">Salem لأجهزة أبل</span>
       </span>
       <span class="chev-w"><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
     </a>
@@ -495,6 +561,11 @@ html.swap .hdr-t, html.swap .list { opacity: 0 }
       appleSub: 'Smart Attendance لأجهزة أبل',
       androidSub: 'Smart Attendance لأجهزة الأندرويد',
       androidSub2: 'لغير أجهزة أبل',
+      salem: 'تحميل تطبيق سالم',
+      salemSub: 'Salem لأجهزة أبل',
+      org: 'منطقة الجهراء الصحية',
+      under: 'المنصة تحت إشراف ورعاية مدير منطقة الجهراء الصحية',
+      name: 'الدكتور / أحمد خاجه',
       logoAlt: 'شعار وزارة الصحة',
       langGroup: 'لغة الصفحة',
       skip: 'تخطي شاشة الترحيب'
@@ -511,6 +582,11 @@ html.swap .hdr-t, html.swap .list { opacity: 0 }
       appleSub: 'For Apple devices',
       androidSub: 'For Android devices',
       androidSub2: '',
+      salem: 'Download Salem',
+      salemSub: 'For Apple devices',
+      org: 'Jahra Health Region',
+      under: 'This platform is under the supervision and patronage of the Director of Jahra Health Region',
+      name: 'Dr. Ahmed Khajah',
       logoAlt: 'Ministry of Health logo',
       langGroup: 'Page language',
       skip: 'Skip the welcome screen'
