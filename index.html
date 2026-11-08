@@ -471,17 +471,21 @@ html.tiny .hdr-id { padding-inline-end: 146px }
   position: fixed; z-index: 20;
   top: calc(var(--ft) + var(--edge)); bottom: calc(var(--fb) + var(--edge));
   left: calc(var(--fl) + var(--edge)); right: calc(var(--fr) + var(--edge));
-  border-radius: calc(var(--R) - var(--edge)); overflow: hidden;
-  display: flex; align-items: center; justify-content: center; padding: 12px;
+  /* clip, not just hidden: focusing the card must never scroll this layer (that made the entrance jump on iPhone) */
+  border-radius: calc(var(--R) - var(--edge)); overflow: hidden; overflow: clip;
+  display: flex; align-items: center; justify-content: center; padding: 24px 16px;
   font-family: 'Readex Pro', 'Cairo', 'Segoe UI', Tahoma, sans-serif; color: #0F2A23;
 }
 .jc[hidden] { display: none }
-.jc-scrim { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: rgba(3, 13, 24, .78); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px) }
+.jc-scrim { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: rgba(3, 13, 24, .86) }
 .jc-card {
   position: relative; width: 100%; max-width: 350px; height: 100%; max-height: 776px;
   display: flex; flex-direction: column; overflow: hidden; outline: none;
-  background: #F6FAF7; border-radius: 32px; box-shadow: 0 30px 70px rgba(0, 0, 0, .5);
+  background: #F6FAF7; border-radius: 32px; box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+  -webkit-backface-visibility: hidden; backface-visibility: hidden;
 }
+/* While the card is open, the page's moving lights rest so the card moves smoothly */
+html.jc-on .frame::before, html.jc-on .app *, html.jc-on .app *::before, html.jc-on .app *::after { animation-play-state: paused !important }
 .jc button:focus-visible, .jc-roll:focus-visible { outline: 3px solid #00965F; outline-offset: 2px }
 .jc ::selection { background: #BFE8D6; color: #0F2A23 }
 html[data-lang="ar"] .jc [data-only="en"], html[data-lang="en"] .jc [data-only="ar"] { display: none }
@@ -502,15 +506,16 @@ html[dir="ltr"] .jc-x { right: 14px }
   width: 100%; max-width: 300px; height: clamp(96px, calc(var(--h) * .21), 176px); margin-top: 18px;
   border-radius: 150px 150px 18px 18px; overflow: hidden; background: #DCE9E2;
 }
-.jc-arch img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 52%; pointer-events: none }
+.jc-arch img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 52%; pointer-events: none; opacity: 0; transition: opacity .3s ease }
+.jc-arch img.ok { opacity: 1 }
 .jc-main { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column }
-.jc-roll {
-  position: relative; flex: 1 1 auto; min-height: 0; margin-top: 16px; overflow: hidden; container-type: size;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 13%, #000 85%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 13%, #000 85%, transparent 100%);
-}
-.jc-track { padding: 0 26px 48px; animation: jcRoll 50s linear 1s infinite both; will-change: transform }
-.jc-roll:hover .jc-track, .jc-roll:focus .jc-track, .jc-track.paused { animation-play-state: paused }
+.jc-roll { position: relative; flex: 1 1 auto; min-height: 0; margin-top: 16px; overflow: hidden }
+/* Soft edges where the text enters and leaves, painted once instead of masking every frame */
+.jc-roll::before, .jc-roll::after { content: ""; position: absolute; z-index: 1; left: 0; right: 0; height: 34px; pointer-events: none }
+.jc-roll::before { top: 0; background: linear-gradient(#F6FAF7, rgba(246, 250, 247, 0)) }
+.jc-roll::after { bottom: 0; background: linear-gradient(rgba(246, 250, 247, 0), #F6FAF7) }
+.jc-track { padding: 16px 26px 48px; will-change: transform }
+.jc-roll:hover .jc-track, .jc-roll:focus .jc-track, .jc-track.paused { animation-play-state: paused !important }
 .jc-intro { margin: 0; font-size: 15px; line-height: 1.95; font-weight: 300; color: #1D3A32 }
 .jc-h { margin: 30px 0 16px; font-size: 16.5px; line-height: 1.4; font-weight: 600; color: #0B6655 }
 .jc-tl { list-style: none; margin: 0; padding: 0; padding-inline-start: 20px; border-inline-start: 2px solid #CFE5DA }
@@ -539,19 +544,17 @@ html[dir="ltr"] .jc-dot { left: -28px }
 .jc-pause .jc-play, .jc-pause.is-paused .jc-stop { display: none }
 .jc-pause.is-paused .jc-play { display: block }
 
-.jc.open .jc-scrim { animation: jcFade .5s ease-out backwards }
-.jc.open .jc-card { animation: jcRise .95s cubic-bezier(.16, 1, .3, 1) backwards }
-.jc.open .jc-logo { animation: jcGrow 1.1s cubic-bezier(.16, 1, .3, 1) .5s backwards }
-.jc.open .jc-arch { animation: jcArch .9s cubic-bezier(.16, 1, .3, 1) .7s backwards }
-.jc.closing .jc-scrim { animation: jcFadeOut .34s ease-in forwards }
-.jc.closing .jc-card { animation: jcDrop .38s cubic-bezier(.7, 0, .84, 0) forwards }
-@keyframes jcRise { from { transform: translateY(110vh) scale(.94) } }
-@keyframes jcDrop { to { transform: translateY(110vh) scale(.96) } }
+/* One movement: the whole card, complete, rises from the bottom edge to the center */
+.jc.open .jc-scrim { animation: jcFade .4s ease-out backwards }
+.jc.open .jc-card { animation: jcRise .62s cubic-bezier(.32, .72, 0, 1) backwards }
+.jc.closing .jc-scrim { animation: jcFadeOut .3s ease-in forwards }
+.jc.closing .jc-card { animation: jcDrop .3s cubic-bezier(.4, 0, 1, 1) forwards }
+@keyframes jcRise { from { transform: translate3d(0, 115%, 0) } to { transform: translate3d(0, 0, 0) } }
+@keyframes jcDrop { from { transform: translate3d(0, 0, 0) } to { transform: translate3d(0, 115%, 0) } }
 @keyframes jcFade { from { opacity: 0 } }
 @keyframes jcFadeOut { to { opacity: 0 } }
-@keyframes jcGrow { from { -webkit-clip-path: inset(100% 0 0 0); clip-path: inset(100% 0 0 0); transform: translateY(10px) } to { -webkit-clip-path: inset(0); clip-path: inset(0); transform: none } }
-@keyframes jcArch { from { opacity: 0; -webkit-clip-path: inset(30% 0 0 0); clip-path: inset(30% 0 0 0) } to { opacity: 1; -webkit-clip-path: inset(0); clip-path: inset(0) } }
-@keyframes jcRoll { from { transform: translateY(250px); transform: translateY(100cqh) } to { transform: translateY(-100%) } }
+/* The text starts in place, then rolls up; later rounds enter from the bottom (jcLoop is written by the script) */
+@keyframes jcFirst { from { transform: translate3d(0, 0, 0) } to { transform: translate3d(0, -100%, 0) } }
 
 /* Narrow and short phones: keep the title on one line and leave the text room to roll */
 .jc-side { padding-left: clamp(18px, 7vw, 28px); padding-right: clamp(18px, 7vw, 28px) }
@@ -579,9 +582,9 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
 @media (prefers-reduced-motion: reduce) {
   .jc.open .jc-card { animation: jcFade .25s ease-out backwards }
   .jc.closing .jc-card { animation: jcFadeOut .2s ease-in forwards }
-  .jc.open .jc-logo, .jc.open .jc-arch, .jc-track { animation: none }
-  .jc-roll { overflow-y: auto; overscroll-behavior: contain; -webkit-mask-image: none; mask-image: none }
-  .jc-foot { display: none }
+  .jc-track { animation: none !important }
+  .jc-roll { overflow-y: auto; overscroll-behavior: contain }
+  .jc-roll::before, .jc-roll::after, .jc-foot { display: none }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -700,7 +703,7 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
       <p class="jc-sub" data-i18n="jcSub">مدينة الجهراء الطبية</p>
       <p class="jc-alt"><span data-only="ar" lang="en" dir="ltr">New Jahra Hospital</span><span data-only="en" lang="ar" dir="rtl">مستشفى الجهراء الجديد</span></p>
       <div class="jc-arch">
-        <img src="assets/jahra-medical-city.jpg" width="800" height="550" alt="مدينة الجهراء الطبية عند الغروب، منظر علوي للأبراج" data-i18n-alt="jcPhotoAlt" loading="lazy" draggable="false">
+        <img id="jcPhoto" data-src="assets/jahra-medical-city.jpg" width="800" height="550" alt="مدينة الجهراء الطبية عند الغروب، منظر علوي للأبراج" data-i18n-alt="jcPhotoAlt" decoding="async" draggable="false">
       </div>
     </div>
     <div class="jc-main">
@@ -875,7 +878,12 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
   var jcTrack = document.getElementById('jcTrack');
   var jcPause = document.getElementById('jcPause');
   var jcPauseText = document.getElementById('jcPauseText');
-  var jcPaused = false, jcTimer = 0, jcWarm = false;
+  var jcPhoto = document.getElementById('jcPhoto');
+  var jcKeys = document.createElement('style');
+  document.head.appendChild(jcKeys);
+  var jcPaused = false, jcTimer = 0, jcFocusTimer = 0, jcWarm = null, jcBusy = false;
+  var ROLL_SPEED = 26; // pixels per second, an easy reading pace
+  var calm = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : { matches: false };
 
   function syncPause() {
     var dict = TEXT[root.getAttribute('data-lang')] || TEXT.ar;
@@ -883,44 +891,87 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
     jcPause.classList[jcPaused ? 'add' : 'remove']('is-paused');
     jcPauseText.textContent = jcPaused ? dict.jcPlay : dict.jcPause;
   }
+  // Fetch and decode the photo and the card font before the first opening, so nothing pops in while the card moves.
   function warmCard() {
-    if (jcWarm) return;
-    jcWarm = true;
-    var photo = new Image();
-    photo.src = 'assets/jahra-medical-city.jpg';
-    if (document.fonts && document.fonts.load) {
-      document.fonts.load('300 15px "Readex Pro"', 'مستشفى').catch(function () {});
-      document.fonts.load('600 24px "Readex Pro"', 'مستشفى').catch(function () {});
+    if (jcWarm) return jcWarm;
+    if (!jcPhoto.getAttribute('src')) {
+      jcPhoto.onload = function () { jcPhoto.className = 'ok'; };
+      jcPhoto.src = jcPhoto.getAttribute('data-src');
+      if (jcPhoto.complete) jcPhoto.className = 'ok';
     }
+    if (!window.Promise) { jcWarm = { then: function (fn) { fn(); } }; return jcWarm; }
+    var waits = [];
+    if (jcPhoto.decode) waits.push(jcPhoto.decode().then(function () { jcPhoto.className = 'ok'; }, function () {}));
+    if (document.fonts && document.fonts.load) {
+      ['300 15px "Readex Pro"', '500 15px "Readex Pro"', '600 24px "Readex Pro"', '700 23px "Readex Pro"'].forEach(function (font) {
+        waits.push(document.fonts.load(font, 'مستشفى Hospital').catch(function () {}));
+      });
+    }
+    jcWarm = Promise.all(waits);
+    return jcWarm;
+  }
+  function startRoll() {
+    jcTrack.style.animation = 'none';
+    if (calm.matches) return;
+    var view = jcRoll.clientHeight, text = jcTrack.offsetHeight;
+    var first = Math.max(6, (text - 40) / ROLL_SPEED), loop = (view + text) / ROLL_SPEED, wait = 1.1;
+    jcKeys.textContent = '@keyframes jcLoop{from{transform:translate3d(0,' + view + 'px,0)}to{transform:translate3d(0,-100%,0)}}';
+    void jcTrack.offsetWidth;
+    jcTrack.style.animation = 'jcFirst ' + first.toFixed(2) + 's linear ' + wait + 's both, jcLoop ' + loop.toFixed(2) + 's linear ' + (wait + first).toFixed(2) + 's infinite';
   }
   function pageBehind(off) {
     app.inert = off;
     if (off) app.setAttribute('aria-hidden', 'true');
     else app.removeAttribute('aria-hidden');
+    root.classList[off ? 'add' : 'remove']('jc-on');
   }
-  function openCard() {
-    warmCard();
+  function showCard() {
     clearTimeout(jcTimer);
     jcPaused = false;
     syncPause();
     jc.classList.remove('closing', 'open');
     jc.hidden = false;
+    jc.scrollTop = 0;
+    startRoll();
     void jc.offsetWidth; // replay the entrance on every opening
     jc.classList.add('open');
     pageBehind(true);
-    jcCard.focus();
+    // Focus only after the card has landed, and never let it scroll anything.
+    clearTimeout(jcFocusTimer);
+    jcFocusTimer = setTimeout(function () {
+      try { jcCard.focus({ preventScroll: true }); } catch (e) { jcCard.focus(); }
+      jc.scrollTop = 0;
+    }, 650);
+  }
+  function openCard() {
+    if (jcBusy || (!jc.hidden && !jc.classList.contains('closing'))) return;
+    jcBusy = true;
+    var done = false;
+    var go = function () {
+      if (done) return;
+      done = true;
+      jcBusy = false;
+      showCard();
+    };
+    warmCard().then(go);
+    setTimeout(go, 450); // a slow network never holds the card back for long
   }
   function closeCard() {
     if (jc.hidden || jc.classList.contains('closing')) return;
+    clearTimeout(jcFocusTimer);
     jc.classList.remove('open');
     jc.classList.add('closing');
     pageBehind(false);
     jcTimer = setTimeout(function () {
       jc.hidden = true;
       jc.classList.remove('closing');
-      jcOpenBtn.focus();
-    }, 380);
+      jcTrack.style.animation = 'none';
+      try { jcOpenBtn.focus({ preventScroll: true }); } catch (e) { jcOpenBtn.focus(); }
+    }, 320);
   }
+  jc.addEventListener('scroll', function () { if (jc.scrollTop) jc.scrollTop = 0; });
+  jcOpenBtn.addEventListener('touchstart', warmCard, { passive: true });
+  jcOpenBtn.addEventListener('mousedown', warmCard);
   jcOpenBtn.addEventListener('click', openCard);
   jcClose.addEventListener('click', closeCard);
   document.getElementById('jcScrim').addEventListener('click', closeCard);
@@ -946,7 +997,7 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
       first.focus();
     }
   });
-  setTimeout(warmCard, 6000);
+  setTimeout(warmCard, 4500);
 
   var startLang = root.getAttribute('data-lang');
   applyText(startLang);
