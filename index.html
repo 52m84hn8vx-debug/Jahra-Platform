@@ -20,6 +20,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&amp;display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;text=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%20%26-.%2C&amp;display=swap">
+<!-- Hospital summary card font, loaded without blocking the page -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" media="print" onload="this.media='all'">
 <script>
 (function () {
   var root = document.documentElement;
@@ -447,6 +449,141 @@ html.tiny[dir="ltr"] .lang { left: auto; right: 10px }
   .s[data-i18n="androidSub2"] { display: none }
 }
 
+/* Hospital summary button: the corner opposite the language switch */
+.info {
+  position: absolute; z-index: 2; top: calc(14 * var(--u)); right: calc(14 * var(--u));
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #F6FAF7; box-shadow: 0 0 0 1px rgba(255, 255, 255, .16), 0 6px 16px rgba(0, 0, 0, .35);
+}
+.info img { display: block; width: auto; height: 27px; pointer-events: none }
+.info:active { transform: scale(.92) }
+@media (max-width: 300px) { .info { top: 6px; right: 6px } }
+html.tiny .info { top: 3px }
+html.tiny[dir="rtl"] .info { right: auto; left: 106px }
+html.tiny[dir="ltr"] .info { right: 106px }
+html.tiny .hdr-id { padding-inline-end: 146px }
+@media (orientation: landscape) and (max-height: 520px) { .info { top: 8px; right: 8px } }
+@media (orientation: landscape) and (max-height: 350px) { .info { top: 6px; right: 6px } }
+
+/* Hospital summary card (approved model 2, the green leaf): rises from the bottom, text rolls upward */
+.jc {
+  position: fixed; z-index: 20;
+  top: calc(var(--ft) + var(--edge)); bottom: calc(var(--fb) + var(--edge));
+  left: calc(var(--fl) + var(--edge)); right: calc(var(--fr) + var(--edge));
+  border-radius: calc(var(--R) - var(--edge)); overflow: hidden;
+  display: flex; align-items: center; justify-content: center; padding: 12px;
+  font-family: 'Readex Pro', 'Cairo', 'Segoe UI', Tahoma, sans-serif; color: #0F2A23;
+}
+.jc[hidden] { display: none }
+.jc-scrim { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: rgba(3, 13, 24, .78); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px) }
+.jc-card {
+  position: relative; width: 100%; max-width: 350px; height: 100%; max-height: 776px;
+  display: flex; flex-direction: column; overflow: hidden; outline: none;
+  background: #F6FAF7; border-radius: 32px; box-shadow: 0 30px 70px rgba(0, 0, 0, .5);
+}
+.jc button:focus-visible, .jc-roll:focus-visible { outline: 3px solid #00965F; outline-offset: 2px }
+.jc ::selection { background: #BFE8D6; color: #0F2A23 }
+html[data-lang="ar"] .jc [data-only="en"], html[data-lang="en"] .jc [data-only="ar"] { display: none }
+.jc-x {
+  position: absolute; z-index: 2; top: 14px; width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; background: #E4EEE8; color: #0F2A23;
+}
+html[dir="rtl"] .jc-x { left: 14px }
+html[dir="ltr"] .jc-x { right: 14px }
+.jc-x svg { display: block; width: 20px; height: 20px }
+.jc-side { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; padding: clamp(18px, calc(var(--h) * .036), 30px) 28px 0 }
+.jc-logo { display: block; width: auto; height: clamp(44px, calc(var(--h) * .083), 70px); pointer-events: none }
+.jc-title { margin: 14px 0 0; font-size: 24px; line-height: 1.35; font-weight: 600; color: #0F2A23 }
+.jc-sub { margin: 4px 0 0; font-size: 14.5px; line-height: 1.5; color: #4B635C }
+.jc-alt { margin: 2px 0 0; font-size: 12.5px; line-height: 1.5; font-weight: 500; color: #0B6655 }
+.jc-alt [lang="en"] { letter-spacing: .02em }
+.jc-arch {
+  width: 100%; max-width: 300px; height: clamp(96px, calc(var(--h) * .21), 176px); margin-top: 18px;
+  border-radius: 150px 150px 18px 18px; overflow: hidden; background: #DCE9E2;
+}
+.jc-arch img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 52%; pointer-events: none }
+.jc-main { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column }
+.jc-roll {
+  position: relative; flex: 1 1 auto; min-height: 0; margin-top: 16px; overflow: hidden; container-type: size;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 13%, #000 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 13%, #000 85%, transparent 100%);
+}
+.jc-track { padding: 0 26px 48px; animation: jcRoll 50s linear 1s infinite both; will-change: transform }
+.jc-roll:hover .jc-track, .jc-roll:focus .jc-track, .jc-track.paused { animation-play-state: paused }
+.jc-intro { margin: 0; font-size: 15px; line-height: 1.95; font-weight: 300; color: #1D3A32 }
+.jc-h { margin: 30px 0 16px; font-size: 16.5px; line-height: 1.4; font-weight: 600; color: #0B6655 }
+.jc-tl { list-style: none; margin: 0; padding: 0; padding-inline-start: 20px; border-inline-start: 2px solid #CFE5DA }
+.jc-tl li { position: relative }
+.jc-tl li + li { margin-top: 20px }
+.jc-dot { position: absolute; top: 6px; width: 14px; height: 14px; border-radius: 14px 0 }
+html[dir="rtl"] .jc-dot { right: -28px }
+html[dir="ltr"] .jc-dot { left: -28px }
+.jc-y { margin: 0; font-size: 13.5px; font-weight: 600; color: #0B6655 }
+.jc-e { margin: 2px 0 0; font-size: 15.5px; font-weight: 500; color: #0F2A23 }
+.jc-d { margin: 4px 0 0; font-size: 14px; line-height: 1.85; font-weight: 300; color: #4B635C }
+.jc-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-gap: 8px; gap: 8px }
+.jc-fact { padding: 14px 6px 12px; text-align: center; border-radius: 18px 4px; background: #E6F2EC }
+.jc-n { margin: 0; font-size: 23px; line-height: 1.2; font-weight: 700; color: #0B6655 }
+.jc-l { margin: 4px 0 0; font-size: 12.5px; line-height: 1.4; color: #3F5852 }
+.jc-src { margin: 10px 0 0; font-size: 12.5px; line-height: 1.7; color: #4B635C }
+.jc-credit { margin: 22px 0 0; font-size: 11px; line-height: 1.6; color: #4B635C }
+.jc-credit bdi { white-space: nowrap }
+.jc-foot { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 14px; border-top: 1px solid #DCE9E2 }
+.jc-pause {
+  min-height: 44px; display: flex; align-items: center; padding: 0 18px; border-radius: 999px;
+  background: #0B6655; color: #FFFFFF; font-size: 13.5px; font-weight: 700;
+  box-shadow: 0 6px 14px rgba(11, 102, 85, .25);
+}
+.jc-pause svg { display: block; width: 16px; height: 16px; margin-inline-end: 8px }
+.jc-pause .jc-play, .jc-pause.is-paused .jc-stop { display: none }
+.jc-pause.is-paused .jc-play { display: block }
+
+.jc.open .jc-scrim { animation: jcFade .5s ease-out backwards }
+.jc.open .jc-card { animation: jcRise .95s cubic-bezier(.16, 1, .3, 1) backwards }
+.jc.open .jc-logo { animation: jcGrow 1.1s cubic-bezier(.16, 1, .3, 1) .5s backwards }
+.jc.open .jc-arch { animation: jcArch .9s cubic-bezier(.16, 1, .3, 1) .7s backwards }
+.jc.closing .jc-scrim { animation: jcFadeOut .34s ease-in forwards }
+.jc.closing .jc-card { animation: jcDrop .38s cubic-bezier(.7, 0, .84, 0) forwards }
+@keyframes jcRise { from { transform: translateY(110vh) scale(.94) } }
+@keyframes jcDrop { to { transform: translateY(110vh) scale(.96) } }
+@keyframes jcFade { from { opacity: 0 } }
+@keyframes jcFadeOut { to { opacity: 0 } }
+@keyframes jcGrow { from { -webkit-clip-path: inset(100% 0 0 0); clip-path: inset(100% 0 0 0); transform: translateY(10px) } to { -webkit-clip-path: inset(0); clip-path: inset(0); transform: none } }
+@keyframes jcArch { from { opacity: 0; -webkit-clip-path: inset(30% 0 0 0); clip-path: inset(30% 0 0 0) } to { opacity: 1; -webkit-clip-path: inset(0); clip-path: inset(0) } }
+@keyframes jcRoll { from { transform: translateY(250px); transform: translateY(100cqh) } to { transform: translateY(-100%) } }
+
+/* Narrow and short phones: keep the title on one line and leave the text room to roll */
+.jc-side { padding-left: clamp(18px, 7vw, 28px); padding-right: clamp(18px, 7vw, 28px) }
+.jc-title { font-size: clamp(20px, 6.6vw, 24px) }
+html.tiny .jc-logo { height: 40px }
+html.tiny .jc-title { margin-top: 8px }
+html.tiny .jc-arch { height: 86px; margin-top: 12px }
+html.tiny .jc-roll { margin-top: 10px }
+html.tiny .jc-foot { padding: 6px 12px 8px }
+
+/* Phones lying flat: logo and photo on one side, the rolling text on the other */
+@media (orientation: landscape) and (max-height: 520px) {
+  .jc { padding: 8px }
+  .jc-card { flex-direction: row; max-width: 720px; max-height: none; border-radius: 24px }
+  .jc-side { flex: 0 0 40%; width: 40%; justify-content: center; padding: 12px 14px }
+  .jc-logo { height: clamp(34px, calc(var(--h) * .13), 56px) }
+  .jc-title { margin-top: 8px; font-size: 19px }
+  .jc-sub { font-size: 13px }
+  .jc-arch { height: clamp(64px, calc(var(--h) * .3), 140px); margin-top: 10px }
+  .jc-main { border-inline-start: 1px solid #DCE9E2 }
+  .jc-roll { margin-top: 62px }
+  .jc-foot { padding: 6px 12px 8px }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jc.open .jc-card { animation: jcFade .25s ease-out backwards }
+  .jc.closing .jc-card { animation: jcFadeOut .2s ease-in forwards }
+  .jc.open .jc-logo, .jc.open .jc-arch, .jc-track { animation: none }
+  .jc-roll { overflow-y: auto; overscroll-behavior: contain; -webkit-mask-image: none; mask-image: none }
+  .jc-foot { display: none }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .frame::before, .orbit, .seal, .hdr-t, .foil, .row, .row::before, .badge-glow, .credit-glow, .credit::before, .credit-sheen,
   .w-bg, .w-seal, .w-in, .w-draw, .w-t1, .w-t2 { animation: none }
@@ -465,6 +602,9 @@ html.tiny[dir="ltr"] .lang { left: auto; right: 10px }
       <button type="button" class="seg" data-set="en" lang="en" aria-pressed="false" aria-label="English">EN</button>
       <button type="button" class="seg" data-set="ar" lang="ar" aria-pressed="true" aria-label="العربية">ع</button>
     </div>
+    <button type="button" class="info hdr-t" id="jcOpen" aria-haspopup="dialog" aria-label="نبذة عن المستشفى" data-i18n-aria="jcOpen">
+      <img src="assets/jahra-hospital-logo.png" width="394" height="756" alt="" draggable="false">
+    </button>
     <div class="seal" id="hdrSeal">
       <span class="halo" aria-hidden="true"></span>
       <span class="hair" aria-hidden="true"></span>
@@ -548,6 +688,73 @@ html.tiny[dir="ltr"] .lang { left: auto; right: 10px }
   </footer>
 </div>
 
+<div class="jc" id="jc" hidden>
+  <div class="jc-scrim" id="jcScrim" aria-hidden="true"></div>
+  <section class="jc-card" id="jcCard" role="dialog" aria-modal="true" aria-labelledby="jcTitle" tabindex="-1">
+    <button type="button" class="jc-x" id="jcClose" aria-label="إغلاق النبذة" data-i18n-aria="jcClose">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="jc-side">
+      <img class="jc-logo" src="assets/jahra-hospital-logo.png" width="394" height="756" alt="شعار مستشفى الجهراء الجديد" data-i18n-alt="jcLogoAlt" draggable="false">
+      <h2 class="jc-title" id="jcTitle" data-i18n="jcTitle">مستشفى الجهراء الجديد</h2>
+      <p class="jc-sub" data-i18n="jcSub">مدينة الجهراء الطبية</p>
+      <p class="jc-alt"><span data-only="ar" lang="en" dir="ltr">New Jahra Hospital</span><span data-only="en" lang="ar" dir="rtl">مستشفى الجهراء الجديد</span></p>
+      <div class="jc-arch">
+        <img src="assets/jahra-medical-city.jpg" width="800" height="550" alt="مدينة الجهراء الطبية عند الغروب، منظر علوي للأبراج" data-i18n-alt="jcPhotoAlt" loading="lazy" draggable="false">
+      </div>
+    </div>
+    <div class="jc-main">
+      <div class="jc-roll" id="jcRoll" tabindex="0" aria-label="نص النبذة، يتحرك للأعلى تلقائياً ويتوقف عند اللمس" data-i18n-aria="jcRollLabel">
+        <div class="jc-track" id="jcTrack">
+          <div data-only="ar">
+            <p class="jc-intro">أحد أبرز المشاريع الصحية في دولة الكويت، أُنشئ بمبادرة أميرية في عهد المغفور له بإذن الله الشيخ صباح الأحمد الجابر الصباح، وبإشراف الديوان الأميري، بهدف دعم الرعاية الصحية في محافظة الجهراء وتوسيع الخدمات التخصصية.</p>
+            <h3 class="jc-h">محطات تاريخية موثقة</h3>
+            <ol class="jc-tl">
+              <li><span class="jc-dot" style="background: #0B6655" aria-hidden="true"></span><p class="jc-y">2013</p><p class="jc-e">بدء المشروع</p><p class="jc-d">بدأت إجراءات المشروع وتطويره استجابةً للتوجيهات الأميرية.</p></li>
+              <li><span class="jc-dot" style="background: #00965F" aria-hidden="true"></span><p class="jc-y">مارس 2015</p><p class="jc-e">بدء التنفيذ</p><p class="jc-d">انطلقت الأعمال الإنشائية الرئيسية للمجمع الطبي.</p></li>
+              <li><span class="jc-dot" style="background: #00A86B" aria-hidden="true"></span><p class="jc-y">2 يوليو 2018</p><p class="jc-e">الافتتاح الرسمي</p><p class="jc-d">افتتحه سمو الأمير الشيخ صباح الأحمد الجابر الصباح، وكان وزير الصحة آنذاك الشيخ د. باسل حمود الصباح.</p></li>
+              <li><span class="jc-dot" style="background: #22B3A0" aria-hidden="true"></span><p class="jc-y">21 أكتوبر 2019</p><p class="jc-e">تدشين التشغيل</p><p class="jc-d">دشّن وزير الصحة الشيخ د. باسل الصباح التشغيل المرحلي الأول للخدمات الطبية.</p></li>
+            </ol>
+            <h3 class="jc-h">أبرز مكونات المشروع عند الافتتاح</h3>
+            <div class="jc-facts">
+              <div class="jc-fact"><p class="jc-n">1,234</p><p class="jc-l">سريراً</p></div>
+              <div class="jc-fact"><p class="jc-n">4</p><p class="jc-l">أبراج رئيسية</p></div>
+              <div class="jc-fact"><p class="jc-n">131</p><p class="jc-l">عيادة خارجية</p></div>
+            </div>
+            <p class="jc-src">وفق تصريح وزير الصحة في حفل الافتتاح.</p>
+            <p class="jc-credit">الصورة: <bdi>Aboodi2007192</bdi> عبر ويكيميديا كومنز، ترخيص <bdi>CC BY-SA 4.0</bdi></p>
+          </div>
+          <div data-only="en">
+            <p class="jc-intro">One of the most prominent healthcare projects in the State of Kuwait. It was established under an Amiri initiative in the era of the late Sheikh Sabah Al-Ahmad Al-Jaber Al-Sabah, under the supervision of the Amiri Diwan, to support healthcare in Jahra Governorate and expand specialized services.</p>
+            <h3 class="jc-h">Documented milestones</h3>
+            <ol class="jc-tl">
+              <li><span class="jc-dot" style="background: #0B6655" aria-hidden="true"></span><p class="jc-y">2013</p><p class="jc-e">Project start</p><p class="jc-d">Project procedures and development began in response to the Amiri directives.</p></li>
+              <li><span class="jc-dot" style="background: #00965F" aria-hidden="true"></span><p class="jc-y">March 2015</p><p class="jc-e">Construction start</p><p class="jc-d">Main construction works on the medical complex began.</p></li>
+              <li><span class="jc-dot" style="background: #00A86B" aria-hidden="true"></span><p class="jc-y">2 July 2018</p><p class="jc-e">Official opening</p><p class="jc-d">Opened by His Highness the Amir Sheikh Sabah Al-Ahmad Al-Jaber Al-Sabah. The Minister of Health at the time was Sheikh Dr. Basel Hamoud Al-Sabah.</p></li>
+              <li><span class="jc-dot" style="background: #22B3A0" aria-hidden="true"></span><p class="jc-y">21 October 2019</p><p class="jc-e">Operations launch</p><p class="jc-d">Minister of Health Sheikh Dr. Basel Al-Sabah launched the first operating phase of medical services.</p></li>
+            </ol>
+            <h3 class="jc-h">Project highlights at opening</h3>
+            <div class="jc-facts">
+              <div class="jc-fact"><p class="jc-n">1,234</p><p class="jc-l">beds</p></div>
+              <div class="jc-fact"><p class="jc-n">4</p><p class="jc-l">main towers</p></div>
+              <div class="jc-fact"><p class="jc-n">131</p><p class="jc-l">outpatient clinics</p></div>
+            </div>
+            <p class="jc-src">As stated by the Minister of Health at the opening ceremony.</p>
+            <p class="jc-credit">Photo: Aboodi2007192 via Wikimedia Commons, licensed CC BY-SA 4.0</p>
+          </div>
+        </div>
+      </div>
+      <div class="jc-foot">
+        <button type="button" class="jc-pause" id="jcPause">
+          <svg class="jc-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6v12M15 6v12"/></svg>
+          <svg class="jc-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>
+          <span id="jcPauseText">إيقاف الحركة</span>
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
 <button type="button" class="welcome" id="welcome" aria-label="تخطي شاشة الترحيب" data-i18n-aria="skip">
   <span class="w-bg"></span>
   <span class="w-seal" id="wSeal">
@@ -586,7 +793,16 @@ html.tiny[dir="ltr"] .lang { left: auto; right: 10px }
       name: 'الدكتور / أحمد خاجه',
       logoAlt: 'شعار وزارة الصحة',
       langGroup: 'لغة الصفحة',
-      skip: 'تخطي شاشة الترحيب'
+      skip: 'تخطي شاشة الترحيب',
+      jcOpen: 'نبذة عن المستشفى',
+      jcClose: 'إغلاق النبذة',
+      jcTitle: 'مستشفى الجهراء الجديد',
+      jcSub: 'مدينة الجهراء الطبية',
+      jcLogoAlt: 'شعار مستشفى الجهراء الجديد',
+      jcPhotoAlt: 'مدينة الجهراء الطبية عند الغروب، منظر علوي للأبراج',
+      jcRollLabel: 'نص النبذة، يتحرك للأعلى تلقائياً ويتوقف عند اللمس',
+      jcPause: 'إيقاف الحركة',
+      jcPlay: 'تشغيل الحركة'
     },
     en: {
       app: 'Jahra Platform',
@@ -608,7 +824,16 @@ html.tiny[dir="ltr"] .lang { left: auto; right: 10px }
       name: 'Dr. Ahmed Khajah',
       logoAlt: 'Ministry of Health logo',
       langGroup: 'Page language',
-      skip: 'Skip the welcome screen'
+      skip: 'Skip the welcome screen',
+      jcOpen: 'About the hospital',
+      jcClose: 'Close',
+      jcTitle: 'New Jahra Hospital',
+      jcSub: 'Jahra Medical City',
+      jcLogoAlt: 'New Jahra Hospital logo',
+      jcPhotoAlt: 'Jahra Medical City at sunset, aerial view of the towers',
+      jcRollLabel: 'Hospital summary. It scrolls up on its own and stops when touched',
+      jcPause: 'Pause motion',
+      jcPlay: 'Play motion'
     }
   };
 
@@ -621,6 +846,7 @@ html.tiny[dir="ltr"] .lang { left: auto; right: 10px }
     each('[data-i18n]', function (node) { node.textContent = dict[node.getAttribute('data-i18n')]; });
     each('[data-i18n-aria]', function (node) { node.setAttribute('aria-label', dict[node.getAttribute('data-i18n-aria')]); });
     each('[data-i18n-alt]', function (node) { node.alt = dict[node.getAttribute('data-i18n-alt')]; });
+    syncPause();
   }
 
   function markLang(lang) {
@@ -638,6 +864,89 @@ html.tiny[dir="ltr"] .lang { left: auto; right: 10px }
       root.classList.remove('swap');
     }, 130);
   }
+
+  // Hospital summary card: opens from the corner button, rises from the bottom, closes with X, Esc or a tap outside.
+  var app = document.getElementById('app');
+  var jc = document.getElementById('jc');
+  var jcCard = document.getElementById('jcCard');
+  var jcOpenBtn = document.getElementById('jcOpen');
+  var jcClose = document.getElementById('jcClose');
+  var jcRoll = document.getElementById('jcRoll');
+  var jcTrack = document.getElementById('jcTrack');
+  var jcPause = document.getElementById('jcPause');
+  var jcPauseText = document.getElementById('jcPauseText');
+  var jcPaused = false, jcTimer = 0, jcWarm = false;
+
+  function syncPause() {
+    var dict = TEXT[root.getAttribute('data-lang')] || TEXT.ar;
+    jcTrack.classList[jcPaused ? 'add' : 'remove']('paused');
+    jcPause.classList[jcPaused ? 'add' : 'remove']('is-paused');
+    jcPauseText.textContent = jcPaused ? dict.jcPlay : dict.jcPause;
+  }
+  function warmCard() {
+    if (jcWarm) return;
+    jcWarm = true;
+    var photo = new Image();
+    photo.src = 'assets/jahra-medical-city.jpg';
+    if (document.fonts && document.fonts.load) {
+      document.fonts.load('300 15px "Readex Pro"', 'مستشفى').catch(function () {});
+      document.fonts.load('600 24px "Readex Pro"', 'مستشفى').catch(function () {});
+    }
+  }
+  function pageBehind(off) {
+    app.inert = off;
+    if (off) app.setAttribute('aria-hidden', 'true');
+    else app.removeAttribute('aria-hidden');
+  }
+  function openCard() {
+    warmCard();
+    clearTimeout(jcTimer);
+    jcPaused = false;
+    syncPause();
+    jc.classList.remove('closing', 'open');
+    jc.hidden = false;
+    void jc.offsetWidth; // replay the entrance on every opening
+    jc.classList.add('open');
+    pageBehind(true);
+    jcCard.focus();
+  }
+  function closeCard() {
+    if (jc.hidden || jc.classList.contains('closing')) return;
+    jc.classList.remove('open');
+    jc.classList.add('closing');
+    pageBehind(false);
+    jcTimer = setTimeout(function () {
+      jc.hidden = true;
+      jc.classList.remove('closing');
+      jcOpenBtn.focus();
+    }, 380);
+  }
+  jcOpenBtn.addEventListener('click', openCard);
+  jcClose.addEventListener('click', closeCard);
+  document.getElementById('jcScrim').addEventListener('click', closeCard);
+  jcPause.addEventListener('click', function () {
+    jcPaused = !jcPaused;
+    syncPause();
+  });
+  jc.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' || event.key === 'Esc') {
+      event.preventDefault();
+      closeCard();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    var stops = [jcClose, jcRoll, jcPause].filter(function (node) { return node.offsetParent !== null; });
+    var first = stops[0], last = stops[stops.length - 1];
+    var active = document.activeElement;
+    if (event.shiftKey && (active === first || active === jcCard)) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+  setTimeout(warmCard, 6000);
 
   var startLang = root.getAttribute('data-lang');
   applyText(startLang);
