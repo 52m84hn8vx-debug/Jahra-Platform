@@ -20,8 +20,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&amp;display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;text=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%20%26-.%2C&amp;display=swap">
-<!-- Hospital summary card font, loaded without blocking the page -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&amp;display=swap" media="print" onload="this.media='all'">
+<!-- Hospital summary card fonts (model 4, the pulse), loaded without blocking the page -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Changa:wght@600&amp;family=Tajawal:wght@400;500;700&amp;display=swap" media="print" onload="this.media='all'">
 <script>
 (function () {
   var root = document.documentElement;
@@ -108,6 +108,7 @@
   --gap: clamp(4px, calc(var(--h) * .0105), 12px);
   --pad-y: clamp(3px, calc(var(--h) * .0105), 12px);
   --beam: clamp(460px, 120vw, 700px);
+  --hb: max(40px, calc(48 * var(--u)));
 }
 @supports (height: 100dvh) { :root { --h: 100dvh } }
 html[lang="en"] { --lh-t: 1.4; --lh-s: 1.5 }
@@ -299,8 +300,8 @@ html[dir="rtl"] .chev { transform: scaleX(-1) }
   html[dir="rtl"] .row:hover .chev-w { transform: translateX(-3px) }
 }
 
-/* Developer credit */
-.ftr { flex: 1 0 auto; display: flex; align-items: center; justify-content: center; padding: clamp(5px, calc(var(--h) * .011), 18px) 8px }
+/* Developer credit, with the hospital button beside it (the same right-hand side in both languages, like the old corner button) */
+.ftr { flex: 1 0 auto; display: flex; align-items: center; justify-content: center; direction: ltr; padding: clamp(5px, calc(var(--h) * .011), 18px) 8px }
 .credit-wrap { position: relative; display: inline-flex; border-radius: calc(21 * var(--u)) }
 .credit-glow { position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: inherit; box-shadow: 0 0 18px 3px rgba(255, 197, 49, .6); opacity: .3; animation: glow 3.2s ease-in-out infinite }
 .credit {
@@ -320,6 +321,35 @@ html[dir="rtl"] .chev { transform: scaleX(-1) }
 .credit::after { content: ""; position: absolute; top: 1.5px; right: 1.5px; bottom: 1.5px; left: 1.5px; border-radius: inherit; background: var(--surface) }
 .credit-sheen { position: absolute; z-index: 1; top: 0; bottom: 0; left: -40%; width: 30%; background: linear-gradient(100deg, transparent, rgba(255, 243, 208, .2), transparent); transform: skewX(-18deg); animation: creditSheen 4.5s ease-in-out infinite }
 .credit-text { position: relative; z-index: 2 }
+
+/* Hospital button: the leaf logo on a white disc, beating like a pulse */
+.hosp {
+  position: relative; flex: 0 0 auto; width: var(--hb); height: var(--hb); margin-left: calc(12 * var(--u));
+  border-radius: 50%;
+  animation: rise .7s cubic-bezier(.16, 1, .3, 1) backwards; animation-delay: calc(2.85s + 7 * 80ms);
+}
+/* Glow and ripples are shadows on the button's own box, so they never make the page scrollable */
+.hosp-glow {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: 50%;
+  box-shadow: 0 0 20px 7px rgba(57, 229, 140, .55);
+  opacity: .22; animation: hospGlow 2.4s ease-in-out 3.6s infinite;
+}
+.hosp-ring {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: 50%;
+  animation: hospRing 2.4s cubic-bezier(.2, .7, .3, 1) 3.6s infinite;
+}
+.hosp-ring2 { animation-delay: 3.88s }
+.hosp-disc {
+  position: relative; z-index: 1; display: flex; width: 100%; height: 100%; border-radius: 50%;
+  align-items: center; justify-content: center; background: #F6FAF7;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .2), 0 0 16px rgba(57, 229, 140, .35), 0 6px 16px rgba(0, 0, 0, .35);
+  animation: hospThump 2.4s ease-in-out 3.6s infinite;
+}
+.hosp-disc img { display: block; width: auto; height: 62%; pointer-events: none }
+.hosp:active { transform: scale(.9) }
+@keyframes hospRing { 0% { box-shadow: 0 0 0 0 rgba(57, 229, 140, .85) } 55%, 100% { box-shadow: 0 0 0 13px rgba(57, 229, 140, 0) } }
+@keyframes hospGlow { 0%, 100% { opacity: .22 } 10% { opacity: .85 } 22% { opacity: .35 } 32% { opacity: .7 } 55% { opacity: .22 } }
+@keyframes hospThump { 0%, 34%, 100% { transform: scale(1) } 8% { transform: scale(1.06) } 16% { transform: scale(1) } 24% { transform: scale(1.035) } }
 
 /* Welcome screen inside the frame: the emblem lands on its place in the header */
 .welcome { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 10; display: block; width: 100%; overflow: hidden; text-align: center; animation: gone 0s linear 3.18s forwards }
@@ -346,9 +376,10 @@ html[dir="rtl"] .chev { transform: scaleX(-1) }
 .w-t2 { margin-top: calc(6 * var(--u)); font-size: calc(16 * var(--u)); line-height: 1.5; color: var(--ink-2); animation: up .7s cubic-bezier(.16, 1, .3, 1) .85s backwards, fadeOut .25s ease 2.2s forwards }
 
 html.skipped .row { animation-delay: calc(var(--i) * 60ms) }
+html.skipped .hosp { animation-delay: calc(7 * 60ms) }
 html.skipped .hdr-t, html.skipped .seal { animation-delay: 0s }
 html.no-welcome .welcome { display: none }
-html.settled .hdr-t, html.settled .seal, html.settled .row { animation: none }
+html.settled .hdr-t, html.settled .seal, html.settled .row, html.settled .hosp { animation: none }
 html.swap .hdr-t, html.swap .list { opacity: 0 }
 
 @keyframes appear { from { opacity: 0 } to { opacity: 0 } }
@@ -391,7 +422,7 @@ html.compact .lh-line { margin-top: calc(4 * var(--u)) }
 
 /* Very narrow screens such as folded phones: keep the emblem clear of the language switch */
 @media (max-width: 300px) {
-  :root, html.compact { --logo: 46px; --gap: 4px }
+  :root, html.compact { --logo: 46px; --gap: 4px; --hb: 40px }
   .app-tag { display: none }
   .lang { top: 6px; left: 6px }
   .list { padding: 0 8px }
@@ -403,6 +434,9 @@ html.compact .lh-line { margin-top: calc(4 * var(--u)) }
   .pair .row { padding-left: 10px; padding-right: 10px }
   .pair .row + .row { margin-top: var(--gap); margin-inline-start: 0 }
   .pair .txt { margin-inline-start: 8px }
+  /* No room beside the credit: the hospital button sits above it */
+  .ftr { flex-direction: column; padding-top: 3px; padding-bottom: 3px }
+  .hosp { order: -1; margin: 0 0 4px }
 }
 
 /* Very short screens: the emblem sits beside the title */
@@ -422,13 +456,14 @@ html.tiny[dir="ltr"] .lang { left: auto; right: 10px }
 
 /* Phones in landscape: emblem and credit on one side, buttons on the other */
 @media (orientation: landscape) and (max-height: 520px) {
-  :root { --logo: clamp(56px, calc(var(--h) * .26), 104px); --gap: 5px; --pad-y: 3px; --R: 22px }
+  :root { --logo: clamp(56px, calc(var(--h) * .26), 104px); --gap: 5px; --pad-y: 3px; --R: 22px; --hb: 38px }
   .app { display: grid; grid-template-columns: minmax(250px, 34%) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto }
   .hdr { grid-column: 1; grid-row: 1; justify-content: center; padding: 8px }
   .lang { position: relative; top: auto; left: auto; margin-bottom: 8px }
   .list { grid-column: 2; grid-row: 1 / 3; align-self: center; padding: 8px 4px 8px 12px }
   html[dir="ltr"] .list { padding: 8px 12px 8px 4px }
-  .ftr { grid-column: 1; grid-row: 2; padding: 6px }
+  .ftr { grid-column: 1; grid-row: 2; padding: 4px 6px }
+  .hosp { margin-left: 8px }
   .credit { padding: 0 12px; font-size: min(calc(11 * var(--u)), 1.45vw) }
   .row { min-height: 44px }
   .note { margin-top: 2px }
@@ -449,24 +484,7 @@ html.tiny[dir="ltr"] .lang { left: auto; right: 10px }
   .s[data-i18n="androidSub2"] { display: none }
 }
 
-/* Hospital summary button: the corner opposite the language switch */
-.info {
-  position: absolute; z-index: 2; top: calc(14 * var(--u)); right: calc(14 * var(--u));
-  width: 44px; height: 44px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  background: #F6FAF7; box-shadow: 0 0 0 1px rgba(255, 255, 255, .16), 0 6px 16px rgba(0, 0, 0, .35);
-}
-.info img { display: block; width: auto; height: 27px; pointer-events: none }
-.info:active { transform: scale(.92) }
-@media (max-width: 300px) { .info { top: 6px; right: 6px } }
-html.tiny .info { top: 3px }
-html.tiny[dir="rtl"] .info { right: auto; left: 106px }
-html.tiny[dir="ltr"] .info { right: 106px }
-html.tiny .hdr-id { padding-inline-end: 146px }
-@media (orientation: landscape) and (max-height: 520px) { .info { top: 8px; right: 8px } }
-@media (orientation: landscape) and (max-height: 350px) { .info { top: 6px; right: 6px } }
-
-/* Hospital summary card (approved model 2, the green leaf): rises from the bottom, text rolls upward */
+/* Hospital summary card (approved model 4, the pulse): rises from the bottom, text rolls upward */
 .jc {
   position: fixed; z-index: 20;
   top: calc(var(--ft) + var(--edge)); bottom: calc(var(--fb) + var(--edge));
@@ -474,75 +492,126 @@ html.tiny .hdr-id { padding-inline-end: 146px }
   /* clip, not just hidden: focusing the card must never scroll this layer (that made the entrance jump on iPhone) */
   border-radius: calc(var(--R) - var(--edge)); overflow: hidden; overflow: clip;
   display: flex; align-items: center; justify-content: center; padding: 24px 16px;
-  font-family: 'Readex Pro', 'Cairo', 'Segoe UI', Tahoma, sans-serif; color: #0F2A23;
+  font-family: 'Tajawal', 'Cairo', 'Segoe UI', Tahoma, sans-serif; color: #EAF5F0;
 }
 .jc[hidden] { display: none }
 .jc-scrim { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: rgba(3, 13, 24, .86) }
 .jc-card {
   position: relative; width: 100%; max-width: 350px; height: 100%; max-height: 776px;
   display: flex; flex-direction: column; overflow: hidden; outline: none;
-  background: #F6FAF7; border-radius: 32px; box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+  background: #0A1215; border: 1px solid rgba(57, 229, 140, .18); border-radius: 30px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .55), 0 0 40px rgba(57, 229, 140, .08);
   -webkit-backface-visibility: hidden; backface-visibility: hidden;
 }
 /* While the card is open, the page's moving lights rest so the card moves smoothly */
 html.jc-on .frame::before, html.jc-on .app *, html.jc-on .app *::before, html.jc-on .app *::after { animation-play-state: paused !important }
-.jc button:focus-visible, .jc-roll:focus-visible { outline: 3px solid #00965F; outline-offset: 2px }
-.jc ::selection { background: #BFE8D6; color: #0F2A23 }
+.jc button:focus-visible, .jc-roll:focus-visible { outline: 2px solid #39E58C; outline-offset: 3px }
+.jc ::selection { background: #39E58C; color: #06210F }
 html[data-lang="ar"] .jc [data-only="en"], html[data-lang="en"] .jc [data-only="ar"] { display: none }
+
+/* Close: the only way out of the card, so it is clear, easy to hit and finished with a pulse-coloured ring */
 .jc-x {
-  position: absolute; z-index: 2; top: 14px; width: 44px; height: 44px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; background: #E4EEE8; color: #0F2A23;
+  position: absolute; z-index: 3; top: 14px; width: 46px; height: 46px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(6, 14, 17, .66); color: #EAF5F0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .45);
+  transition: transform .2s cubic-bezier(.34, 1.56, .64, 1);
 }
 html[dir="rtl"] .jc-x { left: 14px }
 html[dir="ltr"] .jc-x { right: 14px }
-.jc-x svg { display: block; width: 20px; height: 20px }
-.jc-side { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; padding: clamp(18px, calc(var(--h) * .036), 30px) 28px 0 }
-.jc-logo { display: block; width: auto; height: clamp(44px, calc(var(--h) * .083), 70px); pointer-events: none }
-.jc-title { margin: 14px 0 0; font-size: 24px; line-height: 1.35; font-weight: 600; color: #0F2A23 }
-.jc-sub { margin: 4px 0 0; font-size: 14.5px; line-height: 1.5; color: #4B635C }
-.jc-alt { margin: 2px 0 0; font-size: 12.5px; line-height: 1.5; font-weight: 500; color: #0B6655 }
-.jc-alt [lang="en"] { letter-spacing: .02em }
-.jc-arch {
-  width: 100%; max-width: 300px; height: clamp(96px, calc(var(--h) * .21), 176px); margin-top: 18px;
-  border-radius: 150px 150px 18px 18px; overflow: hidden; background: #DCE9E2;
+.jc-x::before {
+  content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: 50%;
+  background: conic-gradient(from 200deg, #39E58C, rgba(57, 229, 140, .14) 28%, #4FD6E8 52%, rgba(79, 214, 232, .14) 76%, #39E58C);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.1px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.1px));
 }
-.jc-arch img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 52%; pointer-events: none; opacity: 0; transition: opacity .3s ease }
-.jc-arch img.ok { opacity: 1 }
-.jc-main { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column }
-.jc-roll { position: relative; flex: 1 1 auto; min-height: 0; margin-top: 16px; overflow: hidden }
+.jc-x svg { position: relative; display: block; width: 18px; height: 18px; transition: transform .35s cubic-bezier(.34, 1.56, .64, 1) }
+.jc-x:active { transform: scale(.9) }
+@media (hover: hover) { .jc-x:hover svg { transform: rotate(90deg) } }
+
+/* Hero: the photo has no frame and melts into the card; the heartbeat line runs across it, above the title */
+.jc-hero { position: relative; flex: 0 0 auto; display: flex; flex-direction: column; overflow: hidden }
+.jc-photo {
+  position: absolute; top: 0; left: 0; display: block; width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 52%;
+  filter: grayscale(1) sepia(.3) hue-rotate(105deg) saturate(1.5) brightness(.72) contrast(1.06);
+  opacity: 0; transition: opacity .3s ease; pointer-events: none;
+}
+.jc-photo.ok { opacity: 1 }
+.jc-veil {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+  background:
+    linear-gradient(180deg, rgba(10, 18, 21, .62) 0, rgba(10, 18, 21, .08) 30%, rgba(10, 18, 21, .06) 46%, rgba(10, 18, 21, .74) 76%, #0A1215 100%),
+    radial-gradient(130% 90% at 50% 38%, rgba(10, 18, 21, 0) 55%, rgba(10, 18, 21, .6) 100%);
+}
+.jc-band { position: relative; z-index: 1; flex: 0 0 auto; height: clamp(56px, calc(var(--h) * .1), 88px); margin: 6px 0 2px; overflow: hidden; pointer-events: none }
+.jc-ecg { position: absolute; top: 0; left: 0; display: block; width: 790px; height: 100%; will-change: transform; animation: jcSweep 3.2s linear .7s infinite }
+.jc-ecg path { fill: none; stroke: #39E58C; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke }
+.jc-ecg .jc-glow { stroke-width: 7; stroke-opacity: .2 }
+.jc-ecg .jc-line { stroke-width: 2.2 }
+.jc-top { position: relative; z-index: 2; display: flex; align-items: center; padding: 13px 16px 0; padding-inline-end: 74px }
+.jc-mark { position: relative; flex: 0 0 auto; width: 48px; height: 48px }
+.jc-beat { position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: 50%; border: 2px solid #39E58C; opacity: 0; animation: jcBeat 1.6s ease-out .8s infinite }
+.jc-disc { position: relative; display: flex; width: 48px; height: 48px; align-items: center; justify-content: center; border-radius: 50%; background: #FFFFFF; box-shadow: 0 6px 16px rgba(0, 0, 0, .35) }
+.jc-logo { display: block; width: auto; height: 32px; pointer-events: none }
+.jc-alt { min-width: 0; margin: 0; margin-inline-start: 12px; font-family: 'Changa', 'Cairo', sans-serif; font-size: 11.5px; line-height: 1.3; font-weight: 600; color: #39E58C }
+.jc-alt [lang="en"] { letter-spacing: .14em; text-transform: uppercase }
+.jc-alt [lang="ar"] { font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700 }
+.jc-head { position: relative; z-index: 2; padding: 0 20px 6px }
+/* Two lines as approved on the canvas ("مستشفى الجهراء" / "الجديد"); the size shrinks only when the first line would not fit */
+.jc-title {
+  margin: 0; white-space: pre-line;
+  font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-size: 34px;
+  font-size: min(38.5px, calc((min(350px, var(--w) - 32px) - 44px) / 8));
+  line-height: 1.3; font-weight: 700; color: #EAF5F0; text-shadow: 0 2px 14px rgba(10, 18, 21, .7);
+}
+html.compact .jc-title { font-size: min(38.5px, calc((min(350px, var(--w) - 28px) - 44px) / 8)) }
+.jc-sub { margin: 2px 0 0; font-size: 15px; line-height: 1.5; color: #FFC531 }
+
+/* Figures at opening, shown as monitor readouts */
+.jc-main { position: relative; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column }
+.jc-vitals { flex: 0 0 auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-gap: 8px; gap: 8px; margin: 12px 18px 0 }
+.jc-vt { padding: 10px 6px 11px; text-align: center; border-radius: 14px; background: #0F1B20; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .07) }
+.jc-vt-bar { display: block; width: 22px; height: 3px; margin: 0 auto; border-radius: 3px; background: #39E58C }
+.jc-vt-n { margin: 6px 0 0; font-family: 'Changa', 'Cairo', sans-serif; font-size: 25px; line-height: 1.15; font-weight: 600; color: #EAF5F0 }
+.jc-vt-l { margin: 3px 0 0; font-size: 12.5px; line-height: 1.4; font-weight: 700; color: #9FB5AE }
+.jc-src { flex: 0 0 auto; margin: 8px 20px 0; font-size: 12px; line-height: 1.6; font-weight: 700; color: #9FB5AE }
+
+/* Rolling text */
+.jc-roll { position: relative; flex: 1 1 auto; min-height: 0; margin-top: 6px; overflow: hidden }
 /* Soft edges where the text enters and leaves, painted once instead of masking every frame */
 .jc-roll::before, .jc-roll::after { content: ""; position: absolute; z-index: 1; left: 0; right: 0; height: 34px; pointer-events: none }
-.jc-roll::before { top: 0; background: linear-gradient(#F6FAF7, rgba(246, 250, 247, 0)) }
-.jc-roll::after { bottom: 0; background: linear-gradient(rgba(246, 250, 247, 0), #F6FAF7) }
-.jc-track { padding: 16px 26px 48px; will-change: transform }
+.jc-roll::before { top: 0; background: linear-gradient(#0A1215, rgba(10, 18, 21, 0)) }
+.jc-roll::after { bottom: 0; background: linear-gradient(rgba(10, 18, 21, 0), #0A1215) }
+.jc-track { padding: 16px 22px 48px; will-change: transform }
 .jc-roll:hover .jc-track, .jc-roll:focus .jc-track, .jc-track.paused { animation-play-state: paused !important }
-.jc-intro { margin: 0; font-size: 15px; line-height: 1.95; font-weight: 300; color: #1D3A32 }
-.jc-h { margin: 30px 0 16px; font-size: 16.5px; line-height: 1.4; font-weight: 600; color: #0B6655 }
-.jc-tl { list-style: none; margin: 0; padding: 0; padding-inline-start: 20px; border-inline-start: 2px solid #CFE5DA }
-.jc-tl li { position: relative }
-.jc-tl li + li { margin-top: 20px }
-.jc-dot { position: absolute; top: 6px; width: 14px; height: 14px; border-radius: 14px 0 }
-html[dir="rtl"] .jc-dot { right: -28px }
-html[dir="ltr"] .jc-dot { left: -28px }
-.jc-y { margin: 0; font-size: 13.5px; font-weight: 600; color: #0B6655 }
-.jc-e { margin: 2px 0 0; font-size: 15.5px; font-weight: 500; color: #0F2A23 }
-.jc-d { margin: 4px 0 0; font-size: 14px; line-height: 1.85; font-weight: 300; color: #4B635C }
-.jc-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-gap: 8px; gap: 8px }
-.jc-fact { padding: 14px 6px 12px; text-align: center; border-radius: 18px 4px; background: #E6F2EC }
-.jc-n { margin: 0; font-size: 23px; line-height: 1.2; font-weight: 700; color: #0B6655 }
-.jc-l { margin: 4px 0 0; font-size: 12.5px; line-height: 1.4; color: #3F5852 }
-.jc-src { margin: 10px 0 0; font-size: 12.5px; line-height: 1.7; color: #4B635C }
-.jc-credit { margin: 22px 0 0; font-size: 11px; line-height: 1.6; color: #4B635C }
+.jc-intro { margin: 0; font-size: 15.5px; line-height: 1.9; color: #CFE0DA }
+.jc-h { margin: 28px 0 16px; font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-size: 20px; line-height: 1.4; font-weight: 600; color: #39E58C }
+.jc-tl { list-style: none; margin: 0; margin-inline-start: 10px; padding: 0; border-inline-start: 1.5px solid rgba(57, 229, 140, .3) }
+.jc-tl li { position: relative; padding-inline-start: 28px }
+.jc-tl li + li { margin-top: 18px }
+.jc-dot {
+  position: absolute; top: 2px; width: 20px; height: 20px; border-radius: 50%;
+  background: #0A1215 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 12'%3E%3Cpath d='M0 6h3.5l1.5-4 2.5 8 1.5-4H14' fill='none' stroke='%2339E58C' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") 50% 50% / 14px 12px no-repeat;
+}
+html[dir="rtl"] .jc-dot { right: -11px }
+html[dir="ltr"] .jc-dot { left: -11px }
+.jc-y { margin: 0; font-family: 'Changa', 'Cairo', sans-serif; font-size: 14.5px; line-height: 1.5; font-weight: 600; color: #4FD6E8 }
+.jc-e { margin: 1px 0 0; font-size: 16px; line-height: 1.5; font-weight: 700; color: #EAF5F0 }
+.jc-d { margin: 3px 0 0; font-size: 14.5px; line-height: 1.8; color: #9FB5AE }
+.jc-credit { margin: 26px 0 0; font-size: 12px; line-height: 1.7; color: #9FB5AE }
 .jc-credit bdi { white-space: nowrap }
-.jc-foot { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 14px; border-top: 1px solid #DCE9E2 }
+.jc-foot { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px 14px; border-top: 1px solid rgba(57, 229, 140, .14) }
 .jc-pause {
   min-height: 44px; display: flex; align-items: center; padding: 0 18px; border-radius: 999px;
-  background: #0B6655; color: #FFFFFF; font-size: 13.5px; font-weight: 700;
-  box-shadow: 0 6px 14px rgba(11, 102, 85, .25);
+  background: #39E58C; color: #06210F; font-size: 14.5px; font-weight: 700;
+  box-shadow: 0 0 18px rgba(57, 229, 140, .3);
 }
 .jc-pause svg { display: block; width: 16px; height: 16px; margin-inline-end: 8px }
 .jc-pause .jc-play, .jc-pause.is-paused .jc-stop { display: none }
 .jc-pause.is-paused .jc-play { display: block }
+.jc-pulse { display: block; flex: 0 0 auto; width: 58px; height: 18px }
+.jc-pulse path { fill: none; stroke: #39E58C; stroke-opacity: .75; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round }
 
 /* One movement: the whole card, complete, rises from the bottom edge to the center */
 .jc.open .jc-scrim { animation: jcFade .4s ease-out backwards }
@@ -553,43 +622,56 @@ html[dir="ltr"] .jc-dot { left: -28px }
 @keyframes jcDrop { from { transform: translate3d(0, 0, 0) } to { transform: translate3d(0, 115%, 0) } }
 @keyframes jcFade { from { opacity: 0 } }
 @keyframes jcFadeOut { to { opacity: 0 } }
+@keyframes jcSweep { from { transform: translate3d(0, 0, 0) } to { transform: translate3d(-316px, 0, 0) } }
+@keyframes jcBeat { 0% { transform: scale(1); opacity: .75 } 70%, 100% { transform: scale(1.45); opacity: 0 } }
 /* The text starts in place, then rolls up; later rounds enter from the bottom (jcLoop is written by the script) */
 @keyframes jcFirst { from { transform: translate3d(0, 0, 0) } to { transform: translate3d(0, -100%, 0) } }
 
-/* Narrow and short phones: keep the title on one line and leave the text room to roll */
-.jc-side { padding-left: clamp(18px, 7vw, 28px); padding-right: clamp(18px, 7vw, 28px) }
-.jc-title { font-size: clamp(20px, 6.6vw, 24px) }
-html.tiny .jc-logo { height: 40px }
-html.tiny .jc-title { margin-top: 8px }
-html.tiny .jc-arch { height: 86px; margin-top: 12px }
-html.tiny .jc-roll { margin-top: 10px }
+/* Phones in a browser and short screens: a smaller hero and readouts leave the text room to roll */
+html.compact .jc { padding: 16px 14px }
+html.compact .jc-vt { padding: 8px 6px 9px }
+html.compact .jc-vt-n { margin-top: 4px; font-size: 23px }
+html.compact .jc-foot { padding: 8px 14px 10px }
+html.tiny .jc { padding: 10px }
+html.tiny .jc-band { height: 50px; margin-top: 2px }
+html.tiny .jc-title { font-size: 28px }
+html.tiny .jc-vitals { margin-top: 8px }
+html.tiny .jc-vt { padding: 6px 4px 7px }
+html.tiny .jc-vt-bar { display: none }
+html.tiny .jc-vt-n { margin-top: 0; font-size: 21px }
+html.tiny .jc-src { margin-top: 5px }
 html.tiny .jc-foot { padding: 6px 12px 8px }
 
-/* Phones lying flat: logo and photo on one side, the rolling text on the other */
+/* Phones lying flat: the photo beside the readouts and the rolling text */
 @media (orientation: landscape) and (max-height: 520px) {
   .jc { padding: 8px }
   .jc-card { flex-direction: row; max-width: 720px; max-height: none; border-radius: 24px }
-  .jc-side { flex: 0 0 40%; width: 40%; justify-content: center; padding: 12px 14px }
-  .jc-logo { height: clamp(34px, calc(var(--h) * .13), 56px) }
-  .jc-title { margin-top: 8px; font-size: 19px }
-  .jc-sub { font-size: 13px }
-  .jc-arch { height: clamp(64px, calc(var(--h) * .3), 140px); margin-top: 10px }
-  .jc-main { border-inline-start: 1px solid #DCE9E2 }
-  .jc-roll { margin-top: 62px }
+  .jc-hero { flex: 0 0 42%; width: 42%; height: auto }
+  html[dir="rtl"] .jc-veil { background: linear-gradient(90deg, #0A1215 0, rgba(10, 18, 21, 0) 30%), linear-gradient(180deg, rgba(10, 18, 21, .62) 0, rgba(10, 18, 21, .08) 30%, rgba(10, 18, 21, .06) 46%, rgba(10, 18, 21, .74) 76%, #0A1215 100%) }
+  html[dir="ltr"] .jc-veil { background: linear-gradient(270deg, #0A1215 0, rgba(10, 18, 21, 0) 30%), linear-gradient(180deg, rgba(10, 18, 21, .62) 0, rgba(10, 18, 21, .08) 30%, rgba(10, 18, 21, .06) 46%, rgba(10, 18, 21, .74) 76%, #0A1215 100%) }
+  .jc-head { margin-top: auto }
+  .jc-title { font-size: 26px }
+  .jc-sub { font-size: 13.5px }
+  .jc-vitals { margin: 12px 16px 0; margin-inline-end: 72px }
+  .jc-vt { padding: 6px 4px 7px }
+  .jc-vt-bar { display: none }
+  .jc-vt-n { margin-top: 0; font-size: 21px }
+  .jc-src { margin-top: 5px }
   .jc-foot { padding: 6px 12px 8px }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .jc.open .jc-card { animation: jcFade .25s ease-out backwards }
   .jc.closing .jc-card { animation: jcFadeOut .2s ease-in forwards }
-  .jc-track { animation: none !important }
+  .jc-track, .jc-ecg, .jc-beat { animation: none !important }
   .jc-roll { overflow-y: auto; overscroll-behavior: contain }
   .jc-roll::before, .jc-roll::after, .jc-foot { display: none }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .frame::before, .orbit, .seal, .hdr-t, .foil, .row, .row::before, .badge-glow, .credit-glow, .credit::before, .credit-sheen,
-  .w-bg, .w-seal, .w-in, .w-draw, .w-t1, .w-t2 { animation: none }
+  .w-bg, .w-seal, .w-in, .w-draw, .w-t1, .w-t2, .hosp, .hosp-glow, .hosp-ring, .hosp-disc { animation: none }
+  .hosp-disc { box-shadow: 0 0 0 2px #39E58C, 0 6px 16px rgba(0, 0, 0, .35) }
   .w-seal { transform: translate(var(--dx), var(--dy)) scale(var(--sc)) }
   .welcome { animation: fadeAll .3s ease 1.4s forwards }
 }
@@ -605,9 +687,6 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
       <button type="button" class="seg" data-set="en" lang="en" aria-pressed="false" aria-label="English">EN</button>
       <button type="button" class="seg" data-set="ar" lang="ar" aria-pressed="true" aria-label="العربية">ع</button>
     </div>
-    <button type="button" class="info hdr-t" id="jcOpen" aria-haspopup="dialog" aria-label="نبذة عن المستشفى" data-i18n-aria="jcOpen">
-      <img src="assets/jahra-hospital-logo.png" width="394" height="756" alt="" draggable="false">
-    </button>
     <div class="seal" id="hdrSeal">
       <span class="halo" aria-hidden="true"></span>
       <span class="hair" aria-hidden="true"></span>
@@ -688,6 +767,12 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
         <span class="credit-text">Created And Design By Eng- Haif AL-Rashed</span>
       </div>
     </div>
+    <button type="button" class="hosp" id="jcOpen" aria-haspopup="dialog" aria-label="نبذة عن المستشفى" data-i18n-aria="jcOpen">
+      <span class="hosp-glow" aria-hidden="true"></span>
+      <span class="hosp-ring" aria-hidden="true"></span>
+      <span class="hosp-ring hosp-ring2" aria-hidden="true"></span>
+      <span class="hosp-disc"><img src="assets/jahra-hospital-logo.png" width="394" height="756" alt="" draggable="false"></span>
+    </button>
   </footer>
 </div>
 
@@ -695,64 +780,64 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
   <div class="jc-scrim" id="jcScrim" aria-hidden="true"></div>
   <section class="jc-card" id="jcCard" role="dialog" aria-modal="true" aria-labelledby="jcTitle" tabindex="-1">
     <button type="button" class="jc-x" id="jcClose" aria-label="إغلاق النبذة" data-i18n-aria="jcClose">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>
     </button>
-    <div class="jc-side">
-      <img class="jc-logo" src="assets/jahra-hospital-logo.png" width="394" height="756" alt="شعار مستشفى الجهراء الجديد" data-i18n-alt="jcLogoAlt" draggable="false">
-      <h2 class="jc-title" id="jcTitle" data-i18n="jcTitle">مستشفى الجهراء الجديد</h2>
-      <p class="jc-sub" data-i18n="jcSub">مدينة الجهراء الطبية</p>
-      <p class="jc-alt"><span data-only="ar" lang="en" dir="ltr">New Jahra Hospital</span><span data-only="en" lang="ar" dir="rtl">مستشفى الجهراء الجديد</span></p>
-      <div class="jc-arch">
-        <img id="jcPhoto" data-src="assets/jahra-medical-city.jpg" width="800" height="550" alt="مدينة الجهراء الطبية عند الغروب، منظر علوي للأبراج" data-i18n-alt="jcPhotoAlt" decoding="async" draggable="false">
+    <div class="jc-hero">
+      <img class="jc-photo" id="jcPhoto" data-src="assets/jahra-medical-city.jpg" width="800" height="550" alt="مدينة الجهراء الطبية عند الغروب، منظر علوي للأبراج" data-i18n-alt="jcPhotoAlt" decoding="async" draggable="false">
+      <span class="jc-veil" aria-hidden="true"></span>
+      <div class="jc-top">
+        <span class="jc-mark"><span class="jc-beat" aria-hidden="true"></span><span class="jc-disc"><img class="jc-logo" src="assets/jahra-hospital-logo.png" width="394" height="756" alt="شعار مستشفى الجهراء الجديد" data-i18n-alt="jcLogoAlt" draggable="false"></span></span>
+        <p class="jc-alt"><span data-only="ar" lang="en" dir="ltr">New Jahra Hospital</span><span data-only="en" lang="ar" dir="rtl">مستشفى الجهراء الجديد</span></p>
+      </div>
+      <div class="jc-band" aria-hidden="true">
+        <svg class="jc-ecg" viewBox="0 0 790 90" preserveAspectRatio="none"><path class="jc-glow" d="M0 50h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38"/><path class="jc-line" d="M0 50h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38"/></svg>
+      </div>
+      <div class="jc-head">
+        <h2 class="jc-title" id="jcTitle" data-i18n="jcTitle">مستشفى الجهراء
+الجديد</h2>
+        <p class="jc-sub" data-i18n="jcSub">مدينة الجهراء الطبية</p>
       </div>
     </div>
     <div class="jc-main">
+      <div class="jc-vitals">
+        <div class="jc-vt"><span class="jc-vt-bar" aria-hidden="true"></span><p class="jc-vt-n" dir="ltr">1,234</p><p class="jc-vt-l" data-i18n="jcBeds">سريراً</p></div>
+        <div class="jc-vt"><span class="jc-vt-bar" aria-hidden="true"></span><p class="jc-vt-n" dir="ltr">4</p><p class="jc-vt-l" data-i18n="jcTowers">أبراج رئيسية</p></div>
+        <div class="jc-vt"><span class="jc-vt-bar" aria-hidden="true"></span><p class="jc-vt-n" dir="ltr">131</p><p class="jc-vt-l" data-i18n="jcClinics">عيادة خارجية</p></div>
+      </div>
+      <p class="jc-src" data-i18n="jcSrc">عند الافتتاح، وفق تصريح وزير الصحة في حفل الافتتاح.</p>
       <div class="jc-roll" id="jcRoll" tabindex="0" aria-label="نص النبذة، يتحرك للأعلى تلقائياً ويتوقف عند اللمس" data-i18n-aria="jcRollLabel">
         <div class="jc-track" id="jcTrack">
           <div data-only="ar">
             <p class="jc-intro">أحد أبرز المشاريع الصحية في دولة الكويت، أُنشئ بمبادرة أميرية في عهد المغفور له بإذن الله الشيخ صباح الأحمد الجابر الصباح، وبإشراف الديوان الأميري، بهدف دعم الرعاية الصحية في محافظة الجهراء وتوسيع الخدمات التخصصية.</p>
             <h3 class="jc-h">محطات تاريخية موثقة</h3>
             <ol class="jc-tl">
-              <li><span class="jc-dot" style="background: #0B6655" aria-hidden="true"></span><p class="jc-y">2013</p><p class="jc-e">بدء المشروع</p><p class="jc-d">بدأت إجراءات المشروع وتطويره استجابةً للتوجيهات الأميرية.</p></li>
-              <li><span class="jc-dot" style="background: #00965F" aria-hidden="true"></span><p class="jc-y">مارس 2015</p><p class="jc-e">بدء التنفيذ</p><p class="jc-d">انطلقت الأعمال الإنشائية الرئيسية للمجمع الطبي.</p></li>
-              <li><span class="jc-dot" style="background: #00A86B" aria-hidden="true"></span><p class="jc-y">2 يوليو 2018</p><p class="jc-e">الافتتاح الرسمي</p><p class="jc-d">افتتحه سمو الأمير الشيخ صباح الأحمد الجابر الصباح، وكان وزير الصحة آنذاك الشيخ د. باسل حمود الصباح.</p></li>
-              <li><span class="jc-dot" style="background: #22B3A0" aria-hidden="true"></span><p class="jc-y">21 أكتوبر 2019</p><p class="jc-e">تدشين التشغيل</p><p class="jc-d">دشّن وزير الصحة الشيخ د. باسل الصباح التشغيل المرحلي الأول للخدمات الطبية.</p></li>
+              <li><span class="jc-dot" aria-hidden="true"></span><p class="jc-y">2013</p><p class="jc-e">بدء المشروع</p><p class="jc-d">بدأت إجراءات المشروع وتطويره استجابةً للتوجيهات الأميرية.</p></li>
+              <li><span class="jc-dot" aria-hidden="true"></span><p class="jc-y">مارس 2015</p><p class="jc-e">بدء التنفيذ</p><p class="jc-d">انطلقت الأعمال الإنشائية الرئيسية للمجمع الطبي.</p></li>
+              <li><span class="jc-dot" aria-hidden="true"></span><p class="jc-y">2 يوليو 2018</p><p class="jc-e">الافتتاح الرسمي</p><p class="jc-d">افتتحه سمو الأمير الشيخ صباح الأحمد الجابر الصباح، وكان وزير الصحة آنذاك الشيخ د. باسل حمود الصباح.</p></li>
+              <li><span class="jc-dot" aria-hidden="true"></span><p class="jc-y">21 أكتوبر 2019</p><p class="jc-e">تدشين التشغيل</p><p class="jc-d">دشّن وزير الصحة الشيخ د. باسل الصباح التشغيل المرحلي الأول للخدمات الطبية.</p></li>
             </ol>
-            <h3 class="jc-h">أبرز مكونات المشروع عند الافتتاح</h3>
-            <div class="jc-facts">
-              <div class="jc-fact"><p class="jc-n">1,234</p><p class="jc-l">سريراً</p></div>
-              <div class="jc-fact"><p class="jc-n">4</p><p class="jc-l">أبراج رئيسية</p></div>
-              <div class="jc-fact"><p class="jc-n">131</p><p class="jc-l">عيادة خارجية</p></div>
-            </div>
-            <p class="jc-src">وفق تصريح وزير الصحة في حفل الافتتاح.</p>
             <p class="jc-credit">الصورة: <bdi>Aboodi2007192</bdi> عبر ويكيميديا كومنز، ترخيص <bdi>CC BY-SA 4.0</bdi></p>
           </div>
           <div data-only="en">
             <p class="jc-intro">One of the most prominent healthcare projects in the State of Kuwait. It was established under an Amiri initiative in the era of the late Sheikh Sabah Al-Ahmad Al-Jaber Al-Sabah, under the supervision of the Amiri Diwan, to support healthcare in Jahra Governorate and expand specialized services.</p>
             <h3 class="jc-h">Documented milestones</h3>
             <ol class="jc-tl">
-              <li><span class="jc-dot" style="background: #0B6655" aria-hidden="true"></span><p class="jc-y">2013</p><p class="jc-e">Project start</p><p class="jc-d">Project procedures and development began in response to the Amiri directives.</p></li>
-              <li><span class="jc-dot" style="background: #00965F" aria-hidden="true"></span><p class="jc-y">March 2015</p><p class="jc-e">Construction start</p><p class="jc-d">Main construction works on the medical complex began.</p></li>
-              <li><span class="jc-dot" style="background: #00A86B" aria-hidden="true"></span><p class="jc-y">2 July 2018</p><p class="jc-e">Official opening</p><p class="jc-d">Opened by His Highness the Amir Sheikh Sabah Al-Ahmad Al-Jaber Al-Sabah. The Minister of Health at the time was Sheikh Dr. Basel Hamoud Al-Sabah.</p></li>
-              <li><span class="jc-dot" style="background: #22B3A0" aria-hidden="true"></span><p class="jc-y">21 October 2019</p><p class="jc-e">Operations launch</p><p class="jc-d">Minister of Health Sheikh Dr. Basel Al-Sabah launched the first operating phase of medical services.</p></li>
+              <li><span class="jc-dot" aria-hidden="true"></span><p class="jc-y">2013</p><p class="jc-e">Project start</p><p class="jc-d">Project procedures and development began in response to the Amiri directives.</p></li>
+              <li><span class="jc-dot" aria-hidden="true"></span><p class="jc-y">March 2015</p><p class="jc-e">Construction start</p><p class="jc-d">Main construction works on the medical complex began.</p></li>
+              <li><span class="jc-dot" aria-hidden="true"></span><p class="jc-y">2 July 2018</p><p class="jc-e">Official opening</p><p class="jc-d">Opened by His Highness the Amir Sheikh Sabah Al-Ahmad Al-Jaber Al-Sabah. The Minister of Health at the time was Sheikh Dr. Basel Hamoud Al-Sabah.</p></li>
+              <li><span class="jc-dot" aria-hidden="true"></span><p class="jc-y">21 October 2019</p><p class="jc-e">Operations launch</p><p class="jc-d">Minister of Health Sheikh Dr. Basel Al-Sabah launched the first operating phase of medical services.</p></li>
             </ol>
-            <h3 class="jc-h">Project highlights at opening</h3>
-            <div class="jc-facts">
-              <div class="jc-fact"><p class="jc-n">1,234</p><p class="jc-l">beds</p></div>
-              <div class="jc-fact"><p class="jc-n">4</p><p class="jc-l">main towers</p></div>
-              <div class="jc-fact"><p class="jc-n">131</p><p class="jc-l">outpatient clinics</p></div>
-            </div>
-            <p class="jc-src">As stated by the Minister of Health at the opening ceremony.</p>
             <p class="jc-credit">Photo: Aboodi2007192 via Wikimedia Commons, licensed CC BY-SA 4.0</p>
           </div>
         </div>
       </div>
       <div class="jc-foot">
         <button type="button" class="jc-pause" id="jcPause">
-          <svg class="jc-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6v12M15 6v12"/></svg>
+          <svg class="jc-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6v12M15 6v12"/></svg>
           <svg class="jc-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>
           <span id="jcPauseText">إيقاف الحركة</span>
         </button>
+        <svg class="jc-pulse" viewBox="0 0 58 18" aria-hidden="true"><path d="M0 10h16l3-7 4 14 3-7h6l2-3 2 3h22"/></svg>
       </div>
     </div>
   </section>
@@ -799,13 +884,17 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
       skip: 'تخطي شاشة الترحيب',
       jcOpen: 'نبذة عن المستشفى',
       jcClose: 'إغلاق النبذة',
-      jcTitle: 'مستشفى الجهراء الجديد',
+      jcTitle: 'مستشفى الجهراء\nالجديد',
       jcSub: 'مدينة الجهراء الطبية',
       jcLogoAlt: 'شعار مستشفى الجهراء الجديد',
       jcPhotoAlt: 'مدينة الجهراء الطبية عند الغروب، منظر علوي للأبراج',
       jcRollLabel: 'نص النبذة، يتحرك للأعلى تلقائياً ويتوقف عند اللمس',
       jcPause: 'إيقاف الحركة',
-      jcPlay: 'تشغيل الحركة'
+      jcPlay: 'تشغيل الحركة',
+      jcBeds: 'سريراً',
+      jcTowers: 'أبراج رئيسية',
+      jcClinics: 'عيادة خارجية',
+      jcSrc: 'عند الافتتاح، وفق تصريح وزير الصحة في حفل الافتتاح.'
     },
     en: {
       app: 'Jahra Platform',
@@ -830,13 +919,17 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
       skip: 'Skip the welcome screen',
       jcOpen: 'About the hospital',
       jcClose: 'Close',
-      jcTitle: 'New Jahra Hospital',
+      jcTitle: 'New Jahra\nHospital',
       jcSub: 'Jahra Medical City',
       jcLogoAlt: 'New Jahra Hospital logo',
       jcPhotoAlt: 'Jahra Medical City at sunset, aerial view of the towers',
       jcRollLabel: 'Hospital summary. It scrolls up on its own and stops when touched',
       jcPause: 'Pause motion',
-      jcPlay: 'Play motion'
+      jcPlay: 'Play motion',
+      jcBeds: 'beds',
+      jcTowers: 'main towers',
+      jcClinics: 'outpatient clinics',
+      jcSrc: 'At opening, as stated by the Minister of Health.'
     }
   };
 
@@ -868,7 +961,8 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
     }, 130);
   }
 
-  // Hospital summary card: opens from the corner button, rises from the bottom, closes with X, Esc or a tap outside.
+  // Hospital summary card: opens from the pulsing logo at the bottom and rises from there.
+  // It closes only with its close button (or Esc on a keyboard); a tap outside the card does nothing.
   var app = document.getElementById('app');
   var jc = document.getElementById('jc');
   var jcCard = document.getElementById('jcCard');
@@ -894,17 +988,18 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
   // Fetch and decode the photo and the card font before the first opening, so nothing pops in while the card moves.
   function warmCard() {
     if (jcWarm) return jcWarm;
+    var shown = function () { jcPhoto.classList.add('ok'); };
     if (!jcPhoto.getAttribute('src')) {
-      jcPhoto.onload = function () { jcPhoto.className = 'ok'; };
+      jcPhoto.onload = shown;
       jcPhoto.src = jcPhoto.getAttribute('data-src');
-      if (jcPhoto.complete) jcPhoto.className = 'ok';
+      if (jcPhoto.complete) shown();
     }
     if (!window.Promise) { jcWarm = { then: function (fn) { fn(); } }; return jcWarm; }
     var waits = [];
-    if (jcPhoto.decode) waits.push(jcPhoto.decode().then(function () { jcPhoto.className = 'ok'; }, function () {}));
+    if (jcPhoto.decode) waits.push(jcPhoto.decode().then(shown, function () {}));
     if (document.fonts && document.fonts.load) {
-      ['300 15px "Readex Pro"', '500 15px "Readex Pro"', '600 24px "Readex Pro"', '700 23px "Readex Pro"'].forEach(function (font) {
-        waits.push(document.fonts.load(font, 'مستشفى Hospital').catch(function () {}));
+      ['600 25px "Changa"', '400 15px "Tajawal"', '700 16px "Tajawal"', '700 38px "Cairo"', '600 20px "Cairo"'].forEach(function (font) {
+        waits.push(document.fonts.load(font, 'مستشفى Hospital 2018').catch(function () {}));
       });
     }
     jcWarm = Promise.all(waits);
@@ -974,7 +1069,6 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
   jcOpenBtn.addEventListener('mousedown', warmCard);
   jcOpenBtn.addEventListener('click', openCard);
   jcClose.addEventListener('click', closeCard);
-  document.getElementById('jcScrim').addEventListener('click', closeCard);
   jcPause.addEventListener('click', function () {
     jcPaused = !jcPaused;
     syncPause();
