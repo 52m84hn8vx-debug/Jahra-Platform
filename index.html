@@ -300,6 +300,41 @@ html[dir="rtl"] .chev { transform: scaleX(-1) }
   html[dir="rtl"] .row:hover .chev-w { transform: translateX(-3px) }
 }
 
+/* Explain button on the reset card (approved canvas button 3, the focus lens). It sits over the arrow's place,
+   and the card keeps an empty slot of the arrow's exact width, so no text moves or wraps */
+.rowx { position: relative; margin-top: var(--gap) }
+.rowx + .row { margin-top: var(--gap) }
+.xp-space { width: calc(18 * var(--u)); height: calc(18 * var(--u)) }
+.xp {
+  position: absolute; z-index: 2; top: 0; bottom: 0; width: 44px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--gold);
+  transition: transform .16s cubic-bezier(.2, .8, .2, 1);
+  animation: rise .7s cubic-bezier(.16, 1, .3, 1) backwards; animation-delay: calc(2.85s + 80ms + 120ms);
+}
+/* Centered on the arrow's place: the card's end padding (14) plus half the arrow (9) */
+html[dir="rtl"] .xp { left: calc(23 * var(--u) - 22px) }
+html[dir="ltr"] .xp { right: calc(23 * var(--u) - 22px) }
+.xp:active { transform: scale(.92) }
+.xp-disc {
+  position: relative; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+  width: clamp(30px, calc(36 * var(--u)), 40px); height: clamp(30px, calc(36 * var(--u)), 40px);
+  background: var(--surface); box-shadow: inset 0 0 0 1px rgba(255, 197, 49, .35), 0 4px 12px rgba(0, 0, 0, .35);
+}
+.xp-ring {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(255, 197, 49, 0) 0 68%, rgba(255, 197, 49, .95) 92%, rgba(255, 197, 49, 0) 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px));
+  animation: spin 2.4s linear infinite;
+}
+.xp-disc svg { position: relative; display: block; width: 61%; height: 61%; overflow: visible }
+.xp-dot { transform-origin: 12px 12px; animation: xpDot 1.8s ease-in-out infinite }
+.xp-corners { transform-origin: 12px 12px; animation: xpFocus 3s ease-in-out infinite }
+.xp-label { margin-top: 2px; font-size: max(10px, calc(11.5 * var(--u))); font-weight: 700; line-height: 1.1 }
+@keyframes xpDot { 0%, 100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.6); opacity: .55 } }
+@keyframes xpFocus { 0%, 60%, 100% { transform: scale(1) } 75% { transform: scale(.8) } 88% { transform: scale(1) } }
+
 /* Developer credit, with the hospital button beside it (the same right-hand side in both languages, like the old corner button) */
 .ftr { flex: 1 0 auto; display: flex; align-items: center; justify-content: center; direction: ltr; padding: clamp(5px, calc(var(--h) * .011), 18px) 8px }
 .credit-wrap { position: relative; display: inline-flex; border-radius: calc(21 * var(--u)) }
@@ -377,9 +412,10 @@ html[dir="rtl"] .chev { transform: scaleX(-1) }
 
 html.skipped .row { animation-delay: calc(var(--i) * 60ms) }
 html.skipped .hosp { animation-delay: calc(7 * 60ms) }
+html.skipped .xp { animation-delay: calc(60ms + 120ms) }
 html.skipped .hdr-t, html.skipped .seal { animation-delay: 0s }
 html.no-welcome .welcome { display: none }
-html.settled .hdr-t, html.settled .seal, html.settled .row, html.settled .hosp { animation: none }
+html.settled .hdr-t, html.settled .seal, html.settled .row, html.settled .hosp, html.settled .xp { animation: none }
 html.swap .hdr-t, html.swap .list { opacity: 0 }
 
 @keyframes appear { from { opacity: 0 } to { opacity: 0 } }
@@ -428,7 +464,9 @@ html.compact .lh-line { margin-top: calc(4 * var(--u)) }
   .list { padding: 0 8px }
   .row { padding-left: 10px; padding-right: 10px }
   .txt { margin-inline-start: 8px; margin-inline-end: 4px }
-  .chev { width: 14px; height: 14px }
+  .chev, .xp-space { width: 14px; height: 14px }
+  html[dir="rtl"] .xp { left: -5px }
+  html[dir="ltr"] .xp { right: -5px }
   html[lang="en"] .t.dl { font-size: 12.5px }
   .pair { display: block }
   .pair .row { padding-left: 10px; padding-right: 10px }
@@ -694,9 +732,169 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
   .jc-roll::before, .jc-roll::after, .jc-foot { display: none }
 }
 
+/* Password reset guide (approved canvas model 3, the spotlight). It opens from the explain button as a widening circle,
+   dims each screenshot except the place to tap, and the light glides to the next place. The screenshots hide all personal data */
+.gd {
+  position: fixed; z-index: 20;
+  top: calc(var(--ft) + var(--edge)); bottom: calc(var(--fb) + var(--edge));
+  left: calc(var(--fl) + var(--edge)); right: calc(var(--fr) + var(--edge));
+  border-radius: calc(var(--R) - var(--edge)); overflow: hidden; overflow: clip;
+  color: var(--ink);
+}
+.gd[hidden] { display: none }
+.gd-sheet { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; flex-direction: column; outline: none; background: #04111F }
+html.gd-on .frame::before, html.gd-on .app *, html.gd-on .app *::before, html.gd-on .app *::after { animation-play-state: paused !important }
+.gd button:focus-visible, .gd a:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px }
+.gd.open .gd-sheet { animation: gdIris .95s cubic-bezier(.7, 0, .2, 1) backwards }
+.gd.closing .gd-sheet { animation: gdShut .42s cubic-bezier(.4, 0, 1, 1) forwards }
+@keyframes gdIris {
+  from { -webkit-clip-path: circle(0 at var(--ox, 10%) var(--oy, 38%)); clip-path: circle(0 at var(--ox, 10%) var(--oy, 38%)) }
+  to { -webkit-clip-path: circle(150% at var(--ox, 10%) var(--oy, 38%)); clip-path: circle(150% at var(--ox, 10%) var(--oy, 38%)) }
+}
+@keyframes gdShut {
+  from { -webkit-clip-path: circle(150% at var(--ox, 10%) var(--oy, 38%)); clip-path: circle(150% at var(--ox, 10%) var(--oy, 38%)) }
+  to { -webkit-clip-path: circle(0 at var(--ox, 10%) var(--oy, 38%)); clip-path: circle(0 at var(--ox, 10%) var(--oy, 38%)) }
+}
+
+.gd-hdr { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; padding: 16px 16px 10px }
+.gd-key { flex: 0 0 auto; display: flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 50%; background: var(--gold); color: var(--on-badge) }
+.gd-key svg { display: block; width: 24px; height: 24px }
+.gd-hd { flex: 1 1 auto; min-width: 0 }
+.gd-title { margin: 0; font-size: 18px; line-height: 1.35; font-weight: 700 }
+.gd-sub { margin: 0; font-size: 13px; line-height: 1.5; color: #EFE3B8 }
+.gd-x {
+  position: relative; flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #F6FAF7; color: #071B2E; box-shadow: 0 6px 16px rgba(0, 0, 0, .35);
+  transition: transform .2s cubic-bezier(.34, 1.56, .64, 1);
+}
+.gd-x-halo { position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: 50%; pointer-events: none; animation: gdHalo 2.6s ease-in-out infinite }
+.gd-x svg { position: relative; display: block; width: 18px; height: 18px }
+.gd-x:active { transform: scale(.9) }
+@keyframes gdHalo { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 197, 49, .5) } 50% { box-shadow: 0 0 0 7px rgba(255, 197, 49, 0) } }
+.gd-live { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
+
+.gd-ticks { flex: 0 0 auto; display: flex; gap: 4px; padding: 0 20px 12px }
+.gd-tick { flex: 1 1 0; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, .16); transition: background-color .4s ease, box-shadow .4s ease }
+.gd-tick.on { background: var(--gold) }
+.gd-tick.cur { box-shadow: 0 0 9px rgba(255, 197, 49, .9) }
+
+/* The stage keeps one shape for every step; each screenshot is centered in it at its own width (sized by the script) */
+.gd-body { position: relative; flex: 1 1 0; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 0 16px }
+.gd-stage {
+  position: relative; isolation: isolate; flex: 0 0 auto; width: 290px; height: 510px; overflow: hidden; border-radius: 24px;
+  background: var(--surface); box-shadow: 0 0 0 1px rgba(255, 197, 49, .28), 0 24px 50px rgba(0, 0, 0, .55);
+}
+.gd-slide { position: absolute; top: 0; height: 100%; opacity: 0; transform: scale(1.05); transition: opacity .6s ease, transform 1s cubic-bezier(.22, 1, .36, 1) }
+.gd-slide.on { opacity: 1; transform: none }
+.gd-slide img { display: block; width: 100%; height: 100%; background: #E9EEF3; pointer-events: none }
+.gd-spot {
+  position: absolute; z-index: 3; border-radius: 12px; pointer-events: none;
+  box-shadow: 0 0 0 1600px rgba(3, 13, 24, .64);
+  transition: left .8s cubic-bezier(.65, 0, .35, 1), top .8s cubic-bezier(.65, 0, .35, 1), width .8s cubic-bezier(.65, 0, .35, 1), height .8s cubic-bezier(.65, 0, .35, 1);
+}
+.gd.open .gd-spot { animation: gdDim .9s ease .7s backwards }
+@keyframes gdDim { from { box-shadow: 0 0 0 1600px rgba(3, 13, 24, 0) } }
+.gd-ring { position: absolute; top: -3px; right: -3px; bottom: -3px; left: -3px; border-radius: 15px; border: 2px solid var(--gold); animation: gdRing 1.7s ease-in-out infinite }
+@keyframes gdRing { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 197, 49, .55), 0 0 16px rgba(255, 197, 49, .45) } 50% { box-shadow: 0 0 0 6px rgba(255, 197, 49, 0), 0 0 26px rgba(255, 197, 49, .75) } }
+.gd-tap {
+  display: none; position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%;
+  background: var(--gold); box-shadow: 0 0 0 3px #FFFFFF, 0 3px 10px rgba(0, 0, 0, .4);
+  animation: gdPress 1.7s ease-in-out infinite;
+}
+.gd-spot.is-tap .gd-tap { display: block }
+.gd-tap::before, .gd-tap::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%;
+  border: 2px solid rgba(255, 197, 49, .95); opacity: 0; animation: gdTapRing 1.7s ease-out infinite;
+}
+.gd-tap::after { animation-delay: .38s }
+@keyframes gdPress { 0%, 100% { transform: scale(1) } 14% { transform: scale(.78) } 30% { transform: scale(1) } }
+@keyframes gdTapRing { 0% { transform: scale(.35); opacity: 0 } 12% { opacity: 1 } 100% { transform: scale(1.5); opacity: 0 } }
+/* When a step has more than one action, the light visits them in order and this badge counts them */
+.gd-badge {
+  display: none; position: absolute; top: -14px; width: 26px; height: 26px; align-items: center; justify-content: center; border-radius: 50%;
+  background: var(--gold); color: var(--on-badge); font-size: 13px; font-weight: 700; line-height: 1; box-shadow: 0 0 0 3px #04111F;
+}
+html[dir="rtl"] .gd-badge { right: -14px }
+html[dir="ltr"] .gd-badge { left: -14px }
+.gd-spot.is-multi .gd-badge { display: flex }
+
+/* Caption: the step number as gold outlined figures beside the title and the instruction */
+.gd-cap { flex: 0 0 auto; display: flex; align-items: flex-start; gap: 12px; padding: 14px 20px 0; overflow: hidden }
+.gd-num { flex: 0 0 auto; min-width: 58px; text-align: center; font-size: 56px; font-weight: 700; line-height: 1; color: transparent; -webkit-text-stroke: 1.6px var(--gold) }
+@supports not (-webkit-text-stroke: 1px #000) { .gd-num { color: var(--gold) } }
+.gd-txt { flex: 1 1 auto; min-width: 0 }
+.gd-h { margin: 0; font-size: 19px; line-height: 1.4; font-weight: 700 }
+.gd-d { margin: 4px 0 0; font-size: 15px; line-height: 1.75; color: #D3E2F0 }
+.gd-ui {
+  display: inline-block; margin: 0 2px; padding: 0 7px; border-radius: 7px;
+  background: rgba(255, 197, 49, .14); box-shadow: inset 0 0 0 1px rgba(255, 197, 49, .38);
+  color: #FFD76A; font-weight: 700; line-height: 1.55; white-space: nowrap;
+}
+.gd-num.anim { animation: gdNum .6s cubic-bezier(.22, 1, .36, 1) backwards }
+.gd-txt.anim { animation: gdCap .55s cubic-bezier(.22, 1, .36, 1) .1s backwards }
+@keyframes gdNum { from { opacity: 0; transform: translateY(14px) scale(.8) } }
+@keyframes gdCap { from { opacity: 0; transform: translateY(10px) } }
+
+/* One joined pill: back on the start side, next (or the link to the service on the last step) on the end side */
+.gd-nav { flex: 0 0 auto; display: flex; height: 52px; margin: 8px 16px 16px; overflow: hidden; border-radius: 26px; background: rgba(255, 255, 255, .06); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14) }
+.gd-nav button, .gd-go { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 15px; font-weight: 600 }
+.gd-nav button:focus-visible, .gd-nav a:focus-visible { outline-offset: -4px; border-radius: 26px }
+.gd-next { color: var(--gold); font-weight: 700 }
+.gd-go { background: var(--gold); color: var(--on-badge); font-weight: 700; text-decoration: none }
+.gd-next[hidden], .gd-go[hidden] { display: none }
+.gd-prev:disabled { opacity: .38; cursor: default }
+.gd-sep { flex: 0 0 auto; width: 1px; margin: 12px 0; background: rgba(255, 255, 255, .16) }
+.gd-nav svg { flex: 0 0 auto; display: block; width: 18px; height: 18px }
+html[dir="ltr"] .gd-flip { transform: scaleX(-1) }
+
+html.compact .gd-hdr { padding: 12px 14px 8px }
+html.compact .gd-key { width: 38px; height: 38px }
+html.compact .gd-key svg { width: 21px; height: 21px }
+html.compact .gd-title { font-size: 16.5px }
+html.compact .gd-sub { font-size: 12.5px }
+html.compact .gd-ticks { padding: 0 18px 10px }
+html.compact .gd-cap { gap: 10px; padding-top: 10px }
+html.compact .gd-num { min-width: 46px; font-size: 44px }
+html.compact .gd-h { font-size: 17px }
+html.compact .gd-d { font-size: 14px; line-height: 1.7 }
+html.compact .gd-nav { height: 48px; margin: 6px 14px 12px }
+html.tiny .gd-hdr { padding: 8px 12px 6px }
+html.tiny .gd-sub { display: none }
+html.tiny .gd-ticks { padding: 0 14px 8px }
+html.tiny .gd-cap { padding: 8px 14px 0 }
+html.tiny .gd-num { min-width: 38px; font-size: 36px }
+html.tiny .gd-h { font-size: 16px }
+html.tiny .gd-d { font-size: 13.5px; line-height: 1.65 }
+html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
+
+/* Phones lying flat: the screenshot on one side, the words and buttons on the other */
+@media (orientation: landscape) and (max-height: 520px) {
+  .gd-sheet { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto }
+  .gd-body { grid-column: 1; grid-row: 1 / 5; padding: 10px }
+  .gd-hdr { grid-column: 2; grid-row: 1; padding: 10px 14px 6px }
+  .gd-ticks { grid-column: 2; grid-row: 2; padding: 0 16px 8px }
+  .gd-cap { grid-column: 2; grid-row: 3; align-self: start; padding: 4px 16px 0 }
+  .gd-nav { grid-column: 2; grid-row: 4; height: 44px; margin: 4px 14px 10px }
+  .gd-key, html.compact .gd-key { width: 36px; height: 36px }
+  .gd-sub { display: none }
+  .gd-num, html.compact .gd-num { min-width: 42px; font-size: 38px }
+  .gd-h, html.compact .gd-h { font-size: 16px }
+  .gd-d, html.compact .gd-d { font-size: 13.5px; line-height: 1.6 }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gd.open .gd-sheet { animation: jcFade .25s ease-out backwards }
+  .gd.closing .gd-sheet { animation: jcFadeOut .2s ease-in forwards }
+  .gd-spot { transition: none }
+  .gd.open .gd-spot, .gd-ring, .gd-tap, .gd-tap::before, .gd-tap::after, .gd-x-halo, .gd-num.anim, .gd-txt.anim { animation: none }
+  .gd-slide { transform: none; transition: opacity .3s ease }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .frame::before, .orbit, .seal, .hdr-t, .foil, .row, .row::before, .badge-glow, .credit-glow, .credit::before, .credit-sheen,
-  .w-bg, .w-seal, .w-in, .w-draw, .w-t1, .w-t2, .hosp, .hosp-glow, .hosp-ring, .hosp-disc { animation: none }
+  .w-bg, .w-seal, .w-in, .w-draw, .w-t1, .w-t2, .hosp, .hosp-glow, .hosp-ring, .hosp-disc,
+  .xp, .xp-ring, .xp-dot, .xp-corners { animation: none }
   .hosp-disc { box-shadow: 0 0 0 2px #39E58C, 0 6px 16px rgba(0, 0, 0, .35) }
   .w-seal { transform: translate(var(--dx), var(--dy)) scale(var(--sc)) }
   .welcome { animation: fadeAll .3s ease 1.4s forwards }
@@ -738,6 +936,7 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
       <span class="chev-w"><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
     </a>
 
+    <div class="rowx">
     <a class="row c1" rel="noopener noreferrer" href="https://eservices.moh.gov.kw/time365/services/Login.aspx">
       <span class="badge"><span class="badge-glow" aria-hidden="true"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15.5" r="4.5"/><path d="M11.2 12.3 20 3.5"/><path d="m16.5 7 3 3"/><path d="m13.5 10 2 2"/></svg></span>
       <span class="txt">
@@ -745,8 +944,16 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
         <span class="s lg" data-i18n="resetSub">لبرنامج البصمة أو الإيميل الوزاري</span>
         <span class="note" data-i18n="resetNote">لمن لديهم برنامج هويتي فقط</span>
       </span>
-      <span class="chev-w"><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>
+      <span class="chev-w xp-space" aria-hidden="true"></span>
     </a>
+    <button type="button" class="xp" id="gdOpen" aria-haspopup="dialog" aria-label="شرح خطوات إعادة تعيين كلمة المرور" data-i18n-aria="gdOpen">
+      <span class="xp-disc" aria-hidden="true">
+        <span class="xp-ring"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><g class="xp-corners"><path d="M4 9V6.5A2.5 2.5 0 0 1 6.5 4H9M15 4h2.5A2.5 2.5 0 0 1 20 6.5V9M20 15v2.5a2.5 2.5 0 0 1-2.5 2.5H15M9 20H6.5A2.5 2.5 0 0 1 4 17.5V15"/></g><circle class="xp-dot" cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></svg>
+      </span>
+      <span class="xp-label" aria-hidden="true" data-i18n="gdLabel">شرح</span>
+    </button>
+    </div>
 
     <a class="row c2" rel="noopener noreferrer" href="https://forms.cloud.microsoft/pages/responsepage.aspx?id=0WwQTyct10uqEXtE6eKbRuZlmo0vFQNFgeBpf4RbvnlUQUs0MUpSTkNVQ1hFN1dUVkRDNVJGMlpWRi4u&amp;origin=lprLink&amp;route=shorturl">
       <span class="badge"><span class="badge-glow" aria-hidden="true"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12V7.5A2.5 2.5 0 0 0 18.5 5h-13A2.5 2.5 0 0 0 3 7.5v9A2.5 2.5 0 0 0 5.5 19H13"/><path d="M3.6 7.4 12 13l8.4-5.6"/><path d="M18.5 15v6"/><path d="M15.5 18h6"/></svg></span>
@@ -870,6 +1077,42 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
   </section>
 </div>
 
+<div class="gd" id="gd" hidden>
+  <section class="gd-sheet" id="gdSheet" role="dialog" aria-modal="true" aria-labelledby="gdTitle" tabindex="-1">
+    <header class="gd-hdr">
+      <span class="gd-key" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15.5" r="4.5"/><path d="M11.2 12.3 20 3.5"/><path d="m16.5 7 3 3"/><path d="m13.5 10 2 2"/></svg></span>
+      <div class="gd-hd">
+        <h2 class="gd-title" id="gdTitle" data-i18n="gdTitle">إعادة تعيين كلمة المرور</h2>
+        <p class="gd-sub" data-i18n="gdSub">اتبع الضوء، فهو يدلّك أين تضغط</p>
+      </div>
+      <button type="button" class="gd-x" id="gdClose" aria-label="إغلاق الشرح" data-i18n-aria="gdClose">
+        <span class="gd-x-halo" aria-hidden="true"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </header>
+    <p class="gd-live" id="gdLive" aria-live="polite"></p>
+    <div class="gd-ticks" id="gdTicks" aria-hidden="true"></div>
+    <div class="gd-body" id="gdBody">
+      <div class="gd-stage" id="gdStage">
+        <div class="gd-spot" id="gdSpot" aria-hidden="true"><span class="gd-ring"></span><span class="gd-tap"></span><span class="gd-badge" id="gdBadge"></span></div>
+      </div>
+    </div>
+    <div class="gd-cap" id="gdCap">
+      <span class="gd-num" id="gdNum" aria-hidden="true">1</span>
+      <div class="gd-txt" id="gdTxt">
+        <h3 class="gd-h" id="gdH"></h3>
+        <p class="gd-d" id="gdD"></p>
+      </div>
+    </div>
+    <div class="gd-nav">
+      <button type="button" class="gd-prev" id="gdPrev"><svg class="gd-flip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span data-i18n="gdPrev">السابق</span></button>
+      <span class="gd-sep" aria-hidden="true"></span>
+      <button type="button" class="gd-next" id="gdNext"><span data-i18n="gdNext">التالي</span><svg class="gd-flip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+      <a class="gd-go" id="gdGo" href="https://eservices.moh.gov.kw/time365/services/Login.aspx" rel="noopener noreferrer" hidden><span data-i18n="gdGo">ابدأ الآن</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
+    </div>
+  </section>
+</div>
+
 <button type="button" class="welcome" id="welcome" aria-label="تخطي شاشة الترحيب" data-i18n-aria="skip">
   <span class="w-bg"></span>
   <span class="w-seal" id="wSeal">
@@ -921,7 +1164,15 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
       jcBeds: 'سريراً',
       jcTowers: 'أبراج رئيسية',
       jcClinics: 'عيادة خارجية',
-      jcSrc: 'عند الافتتاح، وفق تصريح وزير الصحة في حفل الافتتاح.'
+      jcSrc: 'عند الافتتاح، وفق تصريح وزير الصحة في حفل الافتتاح.',
+      gdOpen: 'شرح خطوات إعادة تعيين كلمة المرور',
+      gdLabel: 'شرح',
+      gdTitle: 'إعادة تعيين كلمة المرور',
+      gdSub: 'اتبع الضوء، فهو يدلّك أين تضغط',
+      gdClose: 'إغلاق الشرح',
+      gdPrev: 'السابق',
+      gdNext: 'التالي',
+      gdGo: 'ابدأ الآن'
     },
     en: {
       app: 'Jahra Platform',
@@ -956,7 +1207,15 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
       jcBeds: 'beds',
       jcTowers: 'main towers',
       jcClinics: 'outpatient clinics',
-      jcSrc: 'At opening, as stated by the Minister of Health.'
+      jcSrc: 'At opening, as stated by the Minister of Health.',
+      gdOpen: 'How to reset the password, step by step',
+      gdLabel: 'Guide',
+      gdTitle: 'Reset the Password',
+      gdSub: 'Follow the light: it shows where to tap',
+      gdClose: 'Close the guide',
+      gdPrev: 'Back',
+      gdNext: 'Next',
+      gdGo: 'Start now'
     }
   };
 
@@ -970,6 +1229,7 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
     each('[data-i18n-aria]', function (node) { node.setAttribute('aria-label', dict[node.getAttribute('data-i18n-aria')]); });
     each('[data-i18n-alt]', function (node) { node.alt = dict[node.getAttribute('data-i18n-alt')]; });
     syncPause();
+    gdLangChanged();
   }
 
   function markLang(lang) {
@@ -1119,6 +1379,306 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
     }
   });
   setTimeout(warmCard, 4500);
+
+  // Password reset guide (approved canvas model 3, the spotlight), opened by the explain button on the reset card.
+  // The light dims each screenshot except the place to act; when a step has several actions it visits them in order.
+  // Each step: screenshot width / height, places [x%, y%, width%, height%, 1 = tap here], then the Arabic and English text.
+  // In the text, [words, 1] is a label exactly as it appears on screen.
+  var GUIDE = [
+    { r: .5430, hs: [[9, 28.4, 82, 7.6, 0]],
+      ar: { t: 'صفحة إعادة التعيين', d: [['أولاً، اضغط على زر '], ['إعادة تعيين كلمة المرور', 1], [' لتفتح لك هذه الصفحة.']] },
+      en: { t: 'The reset page', d: [['First, tap '], ['Reset the Password', 1], [' to open this page.']] } },
+    { r: .5419, hs: [[15, 60.4, 70, 5.6, 0], [15.6, 79.8, 68.7, 5.5, 1]],
+      ar: { t: 'الرقم المدني', d: [['اكتب الرقم المدني في الحقل '], ['Civil ID', 1], ['، ثم اضغط زر '], ['Continue', 1], [' حتى يصلك إشعار مصادقة على برنامج '], ['هويتي', 1], ['.']] },
+      en: { t: 'Civil ID', d: [['Type your Civil ID in the '], ['Civil ID', 1], [' field, then tap '], ['Continue', 1], [' until an authentication request reaches you in the '], ['Hawiyati', 1], [' app.']] } },
+    { r: .4814, hs: [[1.6, 41.4, 96.8, 10, 1]],
+      ar: { t: 'إشعار هويتي', d: [['يصلك إشعار '], ['المصادقة والتوقيع', 1], [' على برنامج هويتي.']] },
+      en: { t: 'Hawiyati request', d: [['An '], ['المصادقة والتوقيع', 1], [' (Authentication & Signing) request arrives in the Hawiyati app.']] } },
+    { r: .4833, hs: [[4, 83.2, 44.3, 6.8, 0]],
+      ar: { t: 'طلب المصادقة', d: [['اقبل '], ['تأكيد المصادقة', 1], ['.']] },
+      en: { t: 'Authentication request', d: [['Accept it with '], ['تأكيد المصادقة', 1], [' (Confirm Authentication).']] } },
+    { r: .4817, hs: [[6, 42.3, 14, 4.6, 1], [6, 53.7, 14, 4.6, 1], [4, 83.2, 44.3, 6.6, 1]],
+      ar: { t: 'تفعيل الخيارين', d: [['فعّل الخيارين كما هو موضّح، ثم اضغط '], ['تأكيد المصادقة', 1], ['.']] },
+      en: { t: 'Turn on both options', d: [['Turn on both options as shown, then tap '], ['تأكيد المصادقة', 1], [' (Confirm Authentication).']] } },
+    { r: .4817, hs: [[8.5, 31.7, 83, 6.8, 0], [25.8, 57.6, 48.4, 6.8, 1]],
+      ar: { t: 'الرقم السري', d: [['أدخل الرقم السري لإتمام عملية المصادقة، ثم اضغط '], ['متابعة', 1], ['.']] },
+      en: { t: 'Your PIN', d: [['Enter your PIN to complete the authentication, then tap '], ['متابعة', 1], [' (Continue).']] } },
+    { r: .4840, hs: [[13.3, 58.9, 73.4, 6.9, 1]],
+      ar: { t: 'تمت المصادقة', d: [['تمت المصادقة بنجاح. اضغط زر '], ['حسنا', 1], ['.']] },
+      en: { t: 'Authenticated', d: [['Authentication succeeded. Tap '], ['حسنا', 1], [' (OK).']] } },
+    { r: .5408, hs: [[11, 30, 81.5, 56, 0]],
+      ar: { t: 'بيانات حسابك', d: [['انتظر قليلاً... ثم ارجع إلى الصفحة الأولى التي كتبت فيها '], ['رقمك المدني', 1], ['، وستفتح لك بهذا الشكل وفيها بياناتك الشخصية.']] },
+      en: { t: 'Your account details', d: [['Wait a moment, then go back to the first page where you typed your '], ['Civil ID', 1], ['. It opens like this, showing your personal details.']] } },
+    { r: .5437, hs: [[11.8, 43.2, 79.9, 5.5, 0], [11.8, 55.7, 79.9, 5.5, 0]],
+      ar: { t: 'كلمة المرور الجديدة', d: [['اكتب كلمة المرور الجديدة في الحقل '], ['New Password', 1], ['، ثم أعد كتابتها للتأكيد في الحقل '], ['Confirm New Password', 1], ['.']] },
+      en: { t: 'New password', d: [['Type your new password in the '], ['New Password', 1], [' field, then type it again in the '], ['Confirm New Password', 1], [' field.']] } },
+    { r: .5419, hs: [[4.8, 36, 90.3, 6.1, 0], [4.8, 50.3, 90.3, 6.1, 0], [2.2, 63.3, 95.6, 6.4, 1]],
+      ar: { t: 'التأكيد والإرسال', d: [['تأكد أن كل شيء مكتوب بشكل صحيح ومتطابق، ثم اضغط زر '], ['Submit', 1], ['.']] },
+      en: { t: 'Check and submit', d: [['Make sure everything is typed correctly and matches, then tap '], ['Submit', 1], ['.']] } },
+    { r: .5494, hs: [[1.2, 37.8, 93.6, 6.4, 1]],
+      ar: { t: 'تم التغيير بنجاح', d: [['تم تغيير كلمة المرور بنجاح. اضغط زر '], ['Ok', 1], ['.']] },
+      en: { t: 'Password changed', d: [['Your password has been changed. Tap '], ['Ok', 1], ['.']] } }
+  ];
+  var gd = document.getElementById('gd');
+  var gdSheet = document.getElementById('gdSheet');
+  var gdOpenBtn = document.getElementById('gdOpen');
+  var gdClose = document.getElementById('gdClose');
+  var gdBody = document.getElementById('gdBody');
+  var gdStage = document.getElementById('gdStage');
+  var gdSpot = document.getElementById('gdSpot');
+  var gdBadge = document.getElementById('gdBadge');
+  var gdTicksBox = document.getElementById('gdTicks');
+  var gdCap = document.getElementById('gdCap');
+  var gdNum = document.getElementById('gdNum');
+  var gdTxt = document.getElementById('gdTxt');
+  var gdH = document.getElementById('gdH');
+  var gdD = document.getElementById('gdD');
+  var gdLive = document.getElementById('gdLive');
+  var gdPrev = document.getElementById('gdPrev');
+  var gdNext = document.getElementById('gdNext');
+  var gdGo = document.getElementById('gdGo');
+  var GD_A = 0.57; // stage width / height; the widest screenshot is 0.549, so each one fits with a little room
+  var gdSlides = [], gdImgs = [], gdTicks = [];
+  var gdCur = 0, gdSub = 0, gdBeat = 0, gdTimer = 0, gdFocusTimer = 0, gdX0 = null;
+
+  GUIDE.forEach(function (step) {
+    var w = step.r / GD_A * 100;
+    var slide = document.createElement('div');
+    slide.className = 'gd-slide';
+    slide.style.left = ((100 - w) / 2).toFixed(3) + '%';
+    slide.style.width = w.toFixed(3) + '%';
+    var img = document.createElement('img');
+    img.alt = '';
+    img.decoding = 'async';
+    img.draggable = false;
+    slide.appendChild(img);
+    gdStage.insertBefore(slide, gdSpot);
+    gdSlides.push(slide);
+    gdImgs.push(img);
+    var tick = document.createElement('span');
+    tick.className = 'gd-tick';
+    gdTicksBox.appendChild(tick);
+    gdTicks.push(tick);
+  });
+
+  function gdLang() { return root.getAttribute('data-lang') === 'en' ? 'en' : 'ar'; }
+  // Screenshots load only when the guide is used: the current step and its neighbours
+  function gdLoad(i) {
+    var img = gdImgs[i];
+    if (!img || img.getAttribute('src')) return;
+    img.src = 'assets/guide/step-' + (i < 9 ? '0' : '') + (i + 1) + '.jpg';
+  }
+  function gdFill(node, parts) {
+    while (node.firstChild) node.removeChild(node.firstChild);
+    parts.forEach(function (part) {
+      if (part[1]) {
+        var chip = document.createElement('bdi');
+        chip.className = 'gd-ui';
+        chip.textContent = part[0];
+        node.appendChild(chip);
+      } else {
+        node.appendChild(document.createTextNode(part[0]));
+      }
+    });
+  }
+  function gdWords(i) {
+    var copy = GUIDE[i][gdLang()];
+    gdH.textContent = copy.t;
+    gdFill(gdD, copy.d);
+  }
+  function gdAlts() {
+    var lang = gdLang();
+    gdImgs.forEach(function (img, i) {
+      img.alt = (lang === 'ar' ? 'لقطة شاشة الخطوة ' + (i + 1) + ': ' : 'Screenshot of step ' + (i + 1) + ': ') + GUIDE[i][lang].t;
+    });
+  }
+  function gdReplay(node, name) {
+    node.classList.remove(name);
+    void node.offsetWidth;
+    node.classList.add(name);
+  }
+  function gdPlaceSpot() {
+    var step = GUIDE[gdCur], n = step.hs.length, k = Math.min(gdSub, n - 1), p = step.hs[k];
+    var w = step.r / GD_A * 100, left = (100 - w) / 2;
+    gdSpot.style.left = 'calc(' + (left + p[0] * w / 100).toFixed(3) + '% - 5px)';
+    gdSpot.style.top = 'calc(' + p[1] + '% - 5px)';
+    gdSpot.style.width = 'calc(' + (p[2] * w / 100).toFixed(3) + '% + 10px)';
+    gdSpot.style.height = 'calc(' + p[3] + '% + 10px)';
+    gdSpot.classList[p[4] ? 'add' : 'remove']('is-tap');
+    gdSpot.classList[n > 1 ? 'add' : 'remove']('is-multi');
+    gdBadge.textContent = String(k + 1);
+  }
+  function gdRender(animate) {
+    var lang = gdLang(), last = gdCur === GUIDE.length - 1;
+    var active = document.activeElement;
+    gdSlides.forEach(function (slide, i) {
+      slide.classList[i === gdCur ? 'add' : 'remove']('on');
+      slide.setAttribute('aria-hidden', String(i !== gdCur));
+    });
+    gdTicks.forEach(function (tick, i) {
+      tick.className = 'gd-tick' + (i <= gdCur ? ' on' : '') + (i === gdCur ? ' cur' : '');
+    });
+    gdLoad(gdCur);
+    gdLoad(gdCur + 1);
+    gdLoad(gdCur - 1);
+    gdLoad(gdCur + 2);
+    gdNum.textContent = String(gdCur + 1);
+    gdWords(gdCur);
+    gdLive.textContent = (lang === 'ar' ? 'الخطوة ' + (gdCur + 1) + ' من 11: ' : 'Step ' + (gdCur + 1) + ' of 11: ') + GUIDE[gdCur][lang].t;
+    gdPrev.disabled = gdCur === 0;
+    gdNext.hidden = last;
+    gdGo.hidden = !last;
+    // Keep the keyboard focus on a visible button when the one under it disappears
+    if (active === gdNext && last) gdGo.focus();
+    else if (active === gdGo && !last) gdNext.focus();
+    else if (active === gdPrev && gdCur === 0) gdNext.focus();
+    gdPlaceSpot();
+    if (animate) {
+      gdReplay(gdNum, 'anim');
+      gdReplay(gdTxt, 'anim');
+    }
+  }
+  function gdStartBeat() {
+    clearInterval(gdBeat);
+    gdBeat = setInterval(function () {
+      var n = GUIDE[gdCur].hs.length;
+      if (n < 2) return;
+      gdSub = (gdSub + 1) % n;
+      gdPlaceSpot();
+    }, calm.matches ? 2600 : 1700);
+  }
+  function gdGoTo(i) {
+    if (i < 0 || i >= GUIDE.length || i === gdCur) return;
+    gdCur = i;
+    gdSub = 0;
+    gdRender(true);
+    gdStartBeat();
+  }
+  function gdFlat() {
+    return !!(window.matchMedia && window.matchMedia('(orientation: landscape) and (max-height: 520px)').matches);
+  }
+  // Size the stage to the room left. The caption keeps the height of the longest step, so the stage never jumps between steps.
+  function gdLayout() {
+    if (gd.hidden) return;
+    var h, w;
+    if (gdFlat()) {
+      gdCap.style.height = '';
+      h = gdSheet.clientHeight - 20;
+      w = h * GD_A;
+      var room = gdSheet.clientWidth * 0.42;
+      if (w > room) { w = room; h = w / GD_A; }
+    } else {
+      gdCap.style.height = 'auto';
+      var tallest = 0;
+      for (var i = 0; i < GUIDE.length; i++) {
+        gdWords(i);
+        tallest = Math.max(tallest, gdCap.offsetHeight);
+      }
+      gdWords(gdCur);
+      gdCap.style.height = tallest + 'px';
+      h = Math.min(gdBody.clientHeight - 6, (gdBody.clientWidth - 32) / GD_A);
+      w = h * GD_A;
+    }
+    gdStage.style.width = Math.max(0, Math.floor(w)) + 'px';
+    gdStage.style.height = Math.max(0, Math.floor(h)) + 'px';
+  }
+  function gdBehind(off) {
+    app.inert = off;
+    if (off) app.setAttribute('aria-hidden', 'true');
+    else app.removeAttribute('aria-hidden');
+    root.classList[off ? 'add' : 'remove']('gd-on');
+  }
+  function gdShow() {
+    if (!gd.hidden && !gd.classList.contains('closing')) return;
+    clearTimeout(gdTimer);
+    gd.classList.remove('closing', 'open');
+    gd.hidden = false;
+    // The circle opens from the explain button itself
+    var b = gdOpenBtn.getBoundingClientRect(), g = gd.getBoundingClientRect();
+    if (g.width && g.height) {
+      gd.style.setProperty('--ox', ((b.left + b.width / 2 - g.left) / g.width * 100).toFixed(2) + '%');
+      gd.style.setProperty('--oy', ((b.top + b.height / 2 - g.top) / g.height * 100).toFixed(2) + '%');
+    }
+    gdCur = 0;
+    gdSub = 0;
+    gdAlts();
+    gdLayout();
+    gdRender(false);
+    void gd.offsetWidth; // replay the entrance on every opening
+    gd.classList.add('open');
+    gdBehind(true);
+    gdStartBeat();
+    // Focus only after the circle has opened, and never let it scroll anything
+    clearTimeout(gdFocusTimer);
+    gdFocusTimer = setTimeout(function () {
+      try { gdSheet.focus({ preventScroll: true }); } catch (e) { gdSheet.focus(); }
+    }, 980);
+  }
+  function gdHide() {
+    if (gd.hidden || gd.classList.contains('closing')) return;
+    clearTimeout(gdFocusTimer);
+    clearInterval(gdBeat);
+    gd.classList.remove('open');
+    gd.classList.add('closing');
+    gdBehind(false);
+    gdTimer = setTimeout(function () {
+      gd.hidden = true;
+      gd.classList.remove('closing');
+      try { gdOpenBtn.focus({ preventScroll: true }); } catch (e) { gdOpenBtn.focus(); }
+    }, 440);
+  }
+  function gdLangChanged() {
+    gdAlts();
+    if (gd.hidden) return;
+    gdLayout();
+    gdRender(false);
+  }
+  function gdWarm() { gdLoad(0); gdLoad(1); }
+  gdOpenBtn.addEventListener('touchstart', gdWarm, { passive: true });
+  gdOpenBtn.addEventListener('mousedown', gdWarm);
+  gdOpenBtn.addEventListener('click', gdShow);
+  gdClose.addEventListener('click', gdHide);
+  gdPrev.addEventListener('click', function () { gdGoTo(gdCur - 1); });
+  gdNext.addEventListener('click', function () { gdGoTo(gdCur + 1); });
+  gdGo.addEventListener('click', function () {
+    try { sessionStorage.setItem('jahra-back', '1'); } catch (e) {}
+  });
+  // Swipe: the next step comes from the reading direction's end
+  gdStage.addEventListener('pointerdown', function (event) { gdX0 = event.clientX; });
+  gdStage.addEventListener('pointercancel', function () { gdX0 = null; });
+  gdStage.addEventListener('pointerup', function (event) {
+    if (gdX0 === null) return;
+    var dx = event.clientX - gdX0;
+    gdX0 = null;
+    if (Math.abs(dx) < 40) return;
+    var forward = gdLang() === 'ar' ? dx > 0 : dx < 0;
+    gdGoTo(gdCur + (forward ? 1 : -1));
+  });
+  gd.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' || event.key === 'Esc') {
+      event.preventDefault();
+      gdHide();
+      return;
+    }
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault();
+      var toLeft = event.key === 'ArrowLeft';
+      gdGoTo(gdCur + ((gdLang() === 'ar' ? toLeft : !toLeft) ? 1 : -1));
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    var stops = [gdClose, gdPrev, gdNext, gdGo].filter(function (node) { return !node.hidden && !node.disabled; });
+    var first = stops[0], last = stops[stops.length - 1];
+    var active = document.activeElement;
+    if (event.shiftKey && (active === first || active === gdSheet)) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+  window.addEventListener('resize', function () { if (!gd.hidden) gdLayout(); });
 
   var startLang = root.getAttribute('data-lang');
   applyText(startLang);
