@@ -509,25 +509,34 @@ html.jc-on .frame::before, html.jc-on .app *, html.jc-on .app *::before, html.jc
 .jc ::selection { background: #39E58C; color: #06210F }
 html[data-lang="ar"] .jc [data-only="en"], html[data-lang="en"] .jc [data-only="ar"] { display: none }
 
-/* Close: the only way out of the card, so it is clear, easy to hit and finished with a pulse-coloured ring */
+/* Close: the only way out of the card. A white disc with a dark X and a breathing green halo (canvas option 3), clear on top of the photo
+   and the same family as the white hospital button that opens the card */
 .jc-x {
   position: absolute; z-index: 3; top: 14px; width: 46px; height: 46px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(6, 14, 17, .66); color: #EAF5F0;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, .45);
+  background: #F6FAF7; color: #0B3D25;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .25), 0 0 16px rgba(57, 229, 140, .35), 0 6px 16px rgba(0, 0, 0, .4);
   transition: transform .2s cubic-bezier(.34, 1.56, .64, 1);
 }
 html[dir="rtl"] .jc-x { left: 14px }
 html[dir="ltr"] .jc-x { right: 14px }
-.jc-x::before {
-  content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: 50%;
-  background: conic-gradient(from 200deg, #39E58C, rgba(57, 229, 140, .14) 28%, #4FD6E8 52%, rgba(79, 214, 232, .14) 76%, #39E58C);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.1px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.1px));
+.jc .jc-x:focus-visible { outline-offset: 6px }
+.jc-x-halo {
+  position: absolute; top: -4px; right: -4px; bottom: -4px; left: -4px; border-radius: 50%; pointer-events: none;
+  box-shadow: 0 0 0 2px rgba(57, 229, 140, .6), 0 0 18px rgba(57, 229, 140, .45);
+  opacity: .35; animation: jcHalo 2.6s ease-in-out infinite;
 }
 .jc-x svg { position: relative; display: block; width: 18px; height: 18px; transition: transform .35s cubic-bezier(.34, 1.56, .64, 1) }
 .jc-x:active { transform: scale(.9) }
 @media (hover: hover) { .jc-x:hover svg { transform: rotate(90deg) } }
+@keyframes jcHalo { 50% { opacity: 1; transform: scale(1.06) } }
+
+/* Landing pulse: the card's green edge flashes once as it arrives (canvas entrance option 5) */
+.jc-land {
+  position: absolute; z-index: 4; top: 0; right: 0; bottom: 0; left: 0; border-radius: 29px; pointer-events: none;
+  border: 2px solid #39E58C; box-shadow: 0 0 30px rgba(57, 229, 140, .55), inset 0 0 22px rgba(57, 229, 140, .28);
+  opacity: 0;
+}
 
 /* Hero: the photo has no frame and melts into the card; the heartbeat line runs across it, above the title */
 .jc-hero { position: relative; flex: 0 0 auto; display: flex; flex-direction: column; overflow: hidden }
@@ -558,20 +567,28 @@ html[dir="ltr"] .jc-x { right: 14px }
 .jc-alt [lang="en"] { letter-spacing: .14em; text-transform: uppercase }
 .jc-alt [lang="ar"] { font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700 }
 .jc-head { position: relative; z-index: 2; padding: 0 20px 6px }
-/* The title's Arabic letters in IBM Plex Sans Arabic Bold, as chosen on the canvas. A name of its own keeps the rest of the page's Arabic in Cairo */
+/* The title's Arabic letters in IBM Plex Sans Arabic, as chosen on the canvas. A name of its own keeps the rest of the page's Arabic in Cairo */
+@font-face {
+  font-family: 'Jahra Title'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url(https://fonts.gstatic.com/s/ibmplexsansarabic/v15/Qw3CZRtWPQCuHme67tEYUIx3Kh0PHR9N6Ys43PWrfQ.woff2) format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
 @font-face {
   font-family: 'Jahra Title'; font-style: normal; font-weight: 700; font-display: swap;
   src: url(https://fonts.gstatic.com/s/ibmplexsansarabic/v15/Qw3NZRtWPQCuHme67tEYUIx3Kh0PHR9N6YOG-eCRXMR5Kw.woff2) format('woff2');
   unicode-range: U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
 }
-/* Two lines as approved on the canvas ("مستشفى الجهراء" / "الجديد"); the size shrinks only when the first line would not fit */
+/* One line, as set on the canvas: Arabic regular at 30.7px, English bold at 32.5px, each followed by one empty line.
+   The text is about 9.1 (Arabic) and 9.2 (English) times its font size wide, so the size shrinks on narrow screens instead of wrapping */
 .jc-title {
-  margin: 0; white-space: pre-line;
-  font-family: 'Jahra Title', 'IBM Plex Sans Arabic', 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-size: 34px;
-  font-size: min(38.5px, calc((min(350px, var(--w) - 32px) - 44px) / 7));
-  line-height: 1.3; font-weight: 700; color: #EAF5F0; text-shadow: 0 2px 14px rgba(10, 18, 21, .7);
+  margin: 0 0 1.3em; white-space: nowrap;
+  font-family: 'Jahra Title', 'IBM Plex Sans Arabic', 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-size: 28px;
+  font-size: min(30.7px, calc((min(350px, var(--w) - 32px) - 42px) / 9.3));
+  line-height: 1.3; font-weight: 400; color: #EAF5F0; text-shadow: 0 2px 14px rgba(10, 18, 21, .7);
 }
-html.compact .jc-title { font-size: min(38.5px, calc((min(350px, var(--w) - 28px) - 44px) / 7)) }
+html[lang="en"] .jc-title { font-weight: 700; font-size: min(32.5px, calc((min(350px, var(--w) - 32px) - 42px) / 9.3)) }
+html.compact .jc-title { font-size: min(30.7px, calc((min(350px, var(--w) - 28px) - 42px) / 9.3)) }
+html.compact[lang="en"] .jc-title { font-size: min(32.5px, calc((min(350px, var(--w) - 28px) - 42px) / 9.3)) }
 .jc-sub { margin: 2px 0 0; font-size: 20px; line-height: 1.5; font-weight: 700; color: #FFC531 }
 
 /* Figures at opening, shown as monitor readouts */
@@ -619,9 +636,11 @@ html[dir="ltr"] .jc-dot { left: -11px }
 .jc-pulse { display: block; flex: 0 0 auto; width: 58px; height: 18px }
 .jc-pulse path { fill: none; stroke: #39E58C; stroke-opacity: .75; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round }
 
-/* One movement: the whole card, complete, rises from the bottom edge to the center */
-.jc.open .jc-scrim { animation: jcFade .4s ease-out backwards }
-.jc.open .jc-card { animation: jcRise .62s cubic-bezier(.32, .72, 0, 1) backwards }
+/* One movement: the whole card, complete, rises from the bottom edge to the center in 1s, then its edge pulses once */
+.jc.open .jc-scrim { animation: jcFade .7s ease-out backwards }
+.jc.open .jc-card { animation: jcRise 1s cubic-bezier(.22, .9, .24, 1) backwards }
+.jc.open .jc-land { animation: jcLand 1.2s ease-out .9s backwards }
+@keyframes jcLand { 0% { opacity: 0 } 22% { opacity: 1 } 100% { opacity: 0 } }
 .jc.closing .jc-scrim { animation: jcFadeOut .3s ease-in forwards }
 .jc.closing .jc-card { animation: jcDrop .3s cubic-bezier(.4, 0, 1, 1) forwards }
 @keyframes jcRise { from { transform: translate3d(0, 115%, 0) } to { transform: translate3d(0, 0, 0) } }
@@ -640,7 +659,7 @@ html.compact .jc-vt-n { margin-top: 4px; font-size: 23px }
 html.compact .jc-foot { padding: 8px 14px 10px }
 html.tiny .jc { padding: 10px }
 html.tiny .jc-band { height: 50px; margin-top: 2px }
-html.tiny .jc-title { font-size: 28px }
+html.tiny .jc-title, html.tiny[lang="en"] .jc-title { margin-bottom: 0; font-size: min(28px, calc((min(350px, var(--w) - 20px) - 42px) / 9.3)) }
 html.tiny .jc-vitals { margin-top: 8px }
 html.tiny .jc-vt { padding: 6px 4px 7px }
 html.tiny .jc-vt-bar { display: none }
@@ -656,7 +675,8 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
   html[dir="rtl"] .jc-veil { background: linear-gradient(90deg, #0A1215 0, rgba(10, 18, 21, 0) 30%), linear-gradient(180deg, rgba(10, 18, 21, .62) 0, rgba(10, 18, 21, .08) 30%, rgba(10, 18, 21, .06) 46%, rgba(10, 18, 21, .74) 76%, #0A1215 100%) }
   html[dir="ltr"] .jc-veil { background: linear-gradient(270deg, #0A1215 0, rgba(10, 18, 21, 0) 30%), linear-gradient(180deg, rgba(10, 18, 21, .62) 0, rgba(10, 18, 21, .08) 30%, rgba(10, 18, 21, .06) 46%, rgba(10, 18, 21, .74) 76%, #0A1215 100%) }
   .jc-head { margin-top: auto }
-  .jc-title { font-size: 26px }
+  .jc-title, html[lang="en"] .jc-title, html.compact .jc-title, html.compact[lang="en"] .jc-title, html.tiny .jc-title { margin-bottom: 0; white-space: normal; font-size: 26px }
+  .jc-land { border-radius: 23px }
   .jc-sub { font-size: 13.5px }
   .jc-vitals { margin: 12px 16px 0; margin-inline-end: 72px }
   .jc-vt { padding: 6px 4px 7px }
@@ -669,7 +689,7 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
 @media (prefers-reduced-motion: reduce) {
   .jc.open .jc-card { animation: jcFade .25s ease-out backwards }
   .jc.closing .jc-card { animation: jcFadeOut .2s ease-in forwards }
-  .jc-track, .jc-ecg, .jc-beat { animation: none !important }
+  .jc-track, .jc-ecg, .jc-beat, .jc-x-halo, .jc.open .jc-land { animation: none !important }
   .jc-roll { overflow-y: auto; overscroll-behavior: contain }
   .jc-roll::before, .jc-roll::after, .jc-foot { display: none }
 }
@@ -785,8 +805,10 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
 <div class="jc" id="jc" hidden>
   <div class="jc-scrim" id="jcScrim" aria-hidden="true"></div>
   <section class="jc-card" id="jcCard" role="dialog" aria-modal="true" aria-labelledby="jcTitle" tabindex="-1">
+    <span class="jc-land" aria-hidden="true"></span>
     <button type="button" class="jc-x" id="jcClose" aria-label="إغلاق النبذة" data-i18n-aria="jcClose">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>
+      <span class="jc-x-halo" aria-hidden="true"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>
     </button>
     <div class="jc-hero">
       <img class="jc-photo" id="jcPhoto" data-src="assets/jahra-medical-city.jpg" width="800" height="550" alt="مدينة الجهراء الطبية عند الغروب، منظر علوي للأبراج" data-i18n-alt="jcPhotoAlt" decoding="async" draggable="false">
@@ -799,8 +821,7 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
         <svg class="jc-ecg" viewBox="0 0 790 90" preserveAspectRatio="none"><path class="jc-glow" d="M0 50h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38"/><path class="jc-line" d="M0 50h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38h30q6-6 12 0h12l4 5 6-40 7 52 6-17h21q11-12 22 0h38"/></svg>
       </div>
       <div class="jc-head">
-        <h2 class="jc-title" id="jcTitle" data-i18n="jcTitle">مستشفى الجهراء
-الجديد</h2>
+        <h2 class="jc-title" id="jcTitle" data-i18n="jcTitle">مستشفى الجهراء الجديد</h2>
         <p class="jc-sub" data-i18n="jcSub">مدينة الجهراء الطبية</p>
       </div>
     </div>
@@ -890,7 +911,7 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
       skip: 'تخطي شاشة الترحيب',
       jcOpen: 'نبذة عن المستشفى',
       jcClose: 'إغلاق النبذة',
-      jcTitle: 'مستشفى الجهراء\nالجديد',
+      jcTitle: 'مستشفى الجهراء الجديد',
       jcSub: 'مدينة الجهراء الطبية',
       jcLogoAlt: 'شعار مستشفى الجهراء الجديد',
       jcPhotoAlt: 'مدينة الجهراء الطبية عند الغروب، منظر علوي للأبراج',
@@ -925,7 +946,7 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
       skip: 'Skip the welcome screen',
       jcOpen: 'About the hospital',
       jcClose: 'Close',
-      jcTitle: 'New Jahra\nHospital',
+      jcTitle: 'New Jahra Hospital',
       jcSub: 'Jahra Medical City',
       jcLogoAlt: 'New Jahra Hospital logo',
       jcPhotoAlt: 'Jahra Medical City at sunset, aerial view of the towers',
@@ -1004,7 +1025,7 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
     var waits = [];
     if (jcPhoto.decode) waits.push(jcPhoto.decode().then(shown, function () {}));
     if (document.fonts && document.fonts.load) {
-      ['600 25px "Changa"', '400 15px "Tajawal"', '700 16px "Tajawal"', '700 38px "Jahra Title"', '700 20px "Tajawal"', '600 20px "Cairo"'].forEach(function (font) {
+      ['600 25px "Changa"', '400 15px "Tajawal"', '700 16px "Tajawal"', '400 31px "Jahra Title"', '700 32px "IBM Plex Sans Arabic"','700 20px "Tajawal"', '600 20px "Cairo"'].forEach(function (font) {
         waits.push(document.fonts.load(font, 'مستشفى Hospital 2018').catch(function () {}));
       });
     }
@@ -1042,7 +1063,7 @@ html.tiny .jc-foot { padding: 6px 12px 8px }
     jcFocusTimer = setTimeout(function () {
       try { jcCard.focus({ preventScroll: true }); } catch (e) { jcCard.focus(); }
       jc.scrollTop = 0;
-    }, 650);
+    }, 1050);
   }
   function openCard() {
     if (jcBusy || (!jc.hidden && !jc.classList.contains('closing'))) return;
