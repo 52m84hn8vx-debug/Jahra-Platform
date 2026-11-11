@@ -51,6 +51,34 @@
   var modern = window.CSS && CSS.supports && CSS.supports('width', 'clamp(1px, 2px, 3px)');
   function clampTo(low, value, high) { return Math.max(low, Math.min(value, high)); }
   function flag(name, on) { root.classList[on ? 'add' : 'remove'](name); }
+
+  // Nine buttons nearly fill a phone. Where the content is still taller than the framed page (longer English lines,
+  // short browser windows), lower --k just enough that nothing scrolls. The emblem keeps its size, so the welcome
+  // screen still lands on it. Heights come from offsetHeight, which the buttons' rise animation does not change.
+  function contentHeight(app, flat) {
+    var hdr = app.querySelector('.hdr'), list = app.querySelector('.list'), ftr = app.querySelector('.ftr');
+    if (!hdr || !list || !ftr) return 0;
+    if (flat) return list.offsetHeight;
+    ftr.style.flexGrow = '0';
+    var total = hdr.offsetHeight + list.offsetHeight + ftr.offsetHeight;
+    ftr.style.flexGrow = '';
+    return total;
+  }
+  function squeeze(app, flat) {
+    var s = root.style;
+    s.setProperty('--k', '1');
+    if (!app) return;
+    var room = app.clientHeight - 2;
+    if (contentHeight(app, flat) <= room) return;
+    // Never below 86%: on the rare screens that still overflow (folded phones, phones lying flat) the page scrolls instead
+    var low = 0.86, high = 1;
+    for (var n = 0; n < 8; n++) {
+      var mid = (low + high) / 2;
+      s.setProperty('--k', mid.toFixed(4));
+      if (contentHeight(app, flat) > room) high = mid; else low = mid;
+    }
+    s.setProperty('--k', low.toFixed(4));
+  }
   function fit() {
     var app = document.getElementById('app');
     var h = app ? app.clientHeight : window.innerHeight - 14;
@@ -64,12 +92,12 @@
     var tiny = !flat && h < 610;
     flag('compact', compact);
     flag('tiny', tiny);
-    if (modern) return;
+    if (modern) { squeeze(app, flat); return; }
     s.setProperty('--u', clampTo(0.84, Math.min(w / 355, h / (tiny ? 585 : compact ? 668 : 785)), compact ? 1 : 1.3) + 'px');
     s.setProperty('--rv', clampTo(0.6, (h - 300) / 700, 1.2) + 'px');
     s.setProperty('--logo', (tiny ? clampTo(48, (h - 400) * 0.36, 60) : compact ? clampTo(50, h * 0.4 - 197, 100) : clampTo(56, h * 0.098, 120)) + 'px');
-    s.setProperty('--gap', clampTo(4, h * 0.0105, 12) + 'px');
-    s.setProperty('--pad-y', (compact ? clampTo(3, (h - 650) * 0.05, 7) : clampTo(3, h * 0.0105, 12)) + 'px');
+    s.setProperty('--gap', clampTo(4, h * 0.0085, 10) + 'px');
+    s.setProperty('--pad-y', (compact ? clampTo(3, (h - 650) * 0.05, 7) : clampTo(3, h * 0.0085, 10)) + 'px');
   }
   fit();
   window.jahraFit = fit;
@@ -102,11 +130,14 @@
 
   --h: 100vh;
   --w: 100vw;
-  --u: clamp(.84px, min(calc(var(--w) / 355), calc(var(--h) / 785)), 1.3px);
+  /* Fit factor: 1 unless the content is taller than the framed page; then the script lowers it just enough that nothing scrolls */
+  --k: 1;
+  --u: calc(clamp(.84px, min(calc(var(--w) / 355), calc(var(--h) / 785)), 1.3px) * var(--k));
   --rv: clamp(.6px, calc((var(--h) - 300px) / 700), 1.2px);
   --logo: clamp(56px, calc(var(--h) * .098), 120px);
-  --gap: clamp(4px, calc(var(--h) * .0105), 12px);
-  --pad-y: clamp(3px, calc(var(--h) * .0105), 12px);
+  /* Slightly tighter rhythm than before, so nine buttons fit where seven did */
+  --gap: calc(clamp(4px, calc(var(--h) * .0085), 10px) * var(--k));
+  --pad-y: calc(clamp(3px, calc(var(--h) * .0085), 10px) * var(--k));
   --beam: clamp(460px, 120vw, 700px);
   --hb: max(40px, calc(48 * var(--u)));
 }
@@ -226,10 +257,12 @@ html[data-lang="ar"] .seg[data-set="ar"], html[data-lang="en"] .seg[data-set="en
 .c4 { --i: 4; --mh: 88;  --c: #2FD37F; --sf: #0B3529; --t2: #BFEBD6 }
 .c5 { --i: 5; --mh: 78;  --c: #B08CFF; --sf: #2A1B52; --t2: #DCCFFB }
 .c6 { --i: 6; --mh: 78;  --c: #FF9A3D; --sf: #3B240C; --t2: #FFDDBD }
+.c7 { --i: 7; --mh: 78;  --c: #2FD6C8; --sf: #053A3E; --t2: #BDEEE9 }
+.c8 { --i: 8; --mh: 78;  --c: #FF78B4; --sf: #3F0F35; --t2: #FBCDE3 }
 .row {
   position: relative; isolation: isolate; overflow: hidden;
   display: flex; align-items: center;
-  min-height: max(48px, calc(var(--mh) * var(--rv)));
+  min-height: max(calc(48px * var(--k)), calc(var(--mh) * var(--rv) * var(--k)));
   padding: var(--pad-y) calc(14 * var(--u));
   border-radius: calc(20 * var(--u));
   background: rgba(255, 255, 255, .1);
@@ -239,7 +272,7 @@ html[data-lang="ar"] .seg[data-set="ar"], html[data-lang="en"] .seg[data-set="en
   animation-delay: calc(2.85s + var(--i) * 80ms);
 }
 .row + .row { margin-top: var(--gap) }
-/* The two Salem buttons share one row, so the page keeps its height */
+/* Each app's two store buttons (Salem, MOH ESS) share one row */
 .pair { display: flex; margin-top: var(--gap) }
 .pair .row { flex: 1 1 0; min-width: 0; margin-top: 0; padding-left: calc(8 * var(--u)); padding-right: calc(8 * var(--u)) }
 .pair .row + .row { margin-inline-start: var(--gap) }
@@ -252,7 +285,8 @@ html[data-lang="ar"] .seg[data-set="ar"], html[data-lang="en"] .seg[data-set="en
   margin: calc(var(--beam) / -2) 0 0 calc(var(--beam) / -2);
   background: conic-gradient(from 0deg, transparent 0 68%, var(--c) 90%, #FFFFFF 95%, transparent 100%);
   opacity: 0;
-  animation: spin 2.6s linear infinite, lit 18.2s ease-in-out infinite;
+  /* One light at a time: 9 buttons x 2.6s = one 23.4s round */
+  animation: spin 2.6s linear infinite, lit 23.4s ease-in-out infinite;
   animation-delay: 0s, calc(3.6s + var(--i) * 2.6s);
 }
 .row::after {
@@ -270,7 +304,7 @@ html[data-lang="ar"] .seg[data-set="ar"], html[data-lang="en"] .seg[data-set="en
 .badge-glow {
   position: absolute; top: -34%; right: -34%; bottom: -34%; left: -34%; border-radius: 50%;
   background: radial-gradient(closest-side, var(--c), transparent);
-  opacity: .28; animation: badgeGlow 18.2s ease-in-out infinite;
+  opacity: .28; animation: badgeGlow 23.4s ease-in-out infinite;
   animation-delay: calc(3.6s + var(--i) * 2.6s);
 }
 .badge::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: 50%; background: var(--c) }
@@ -336,7 +370,8 @@ html[dir="ltr"] .xp { right: calc(23 * var(--u) - 22px) }
 @keyframes xpFocus { 0%, 60%, 100% { transform: scale(1) } 75% { transform: scale(.8) } 88% { transform: scale(1) } }
 
 /* Developer credit, with the hospital button beside it (the same right-hand side in both languages, like the old corner button) */
-.ftr { flex: 1 0 auto; display: flex; align-items: center; justify-content: center; direction: ltr; padding: clamp(5px, calc(var(--h) * .011), 18px) 8px }
+/* The padding keeps the credit apart from the last buttons and leaves room for the hospital button's ripple above the frame edge */
+.ftr { flex: 1 0 auto; display: flex; align-items: center; justify-content: center; direction: ltr; padding: calc(clamp(10px, calc(var(--h) * .017), 18px) * var(--k)) 8px }
 .credit-wrap { position: relative; display: inline-flex; border-radius: calc(21 * var(--u)) }
 .credit-glow { position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: inherit; box-shadow: 0 0 18px 3px rgba(255, 197, 49, .6); opacity: .3; animation: glow 3.2s ease-in-out infinite }
 .credit {
@@ -361,7 +396,7 @@ html[dir="ltr"] .xp { right: calc(23 * var(--u) - 22px) }
 .hosp {
   position: relative; flex: 0 0 auto; width: var(--hb); height: var(--hb); margin-left: calc(12 * var(--u));
   border-radius: 50%;
-  animation: rise .7s cubic-bezier(.16, 1, .3, 1) backwards; animation-delay: calc(2.85s + 7 * 80ms);
+  animation: rise .7s cubic-bezier(.16, 1, .3, 1) backwards; animation-delay: calc(2.85s + 9 * 80ms);
 }
 /* Glow and ripples are shadows on the button's own box, so they never make the page scrollable */
 .hosp-glow {
@@ -411,7 +446,7 @@ html[dir="ltr"] .xp { right: calc(23 * var(--u) - 22px) }
 .w-t2 { margin-top: calc(6 * var(--u)); font-size: calc(16 * var(--u)); line-height: 1.5; color: var(--ink-2); animation: up .7s cubic-bezier(.16, 1, .3, 1) .85s backwards, fadeOut .25s ease 2.2s forwards }
 
 html.skipped .row { animation-delay: calc(var(--i) * 60ms) }
-html.skipped .hosp { animation-delay: calc(7 * 60ms) }
+html.skipped .hosp { animation-delay: calc(9 * 60ms) }
 html.skipped .xp { animation-delay: calc(60ms + 120ms) }
 html.skipped .hdr-t, html.skipped .seal { animation-delay: 0s }
 html.no-welcome .welcome { display: none }
@@ -422,8 +457,9 @@ html.swap .hdr-t, html.swap .list { opacity: 0 }
 @keyframes up { from { opacity: 0; transform: translateY(14px) } }
 @keyframes rise { from { opacity: 0; transform: translateY(20px) } }
 @keyframes spin { to { transform: rotate(360deg) } }
-@keyframes lit { 0%, 14.2%, 100% { opacity: 0 } 2.8%, 11.4% { opacity: 1 } }
-@keyframes badgeGlow { 0%, 14.2%, 100% { opacity: .28 } 4.3%, 9.9% { opacity: .8 } }
+/* Same 2.6s window per button as before, now within a 23.4s round */
+@keyframes lit { 0%, 11.04%, 100% { opacity: 0 } 2.18%, 8.86% { opacity: 1 } }
+@keyframes badgeGlow { 0%, 11.04%, 100% { opacity: .28 } 3.34%, 7.7% { opacity: .8 } }
 @keyframes foil { 0%, 45% { background-position: 100% 0 } 100% { background-position: 0 0 } }
 @keyframes glow { 50% { opacity: .75 } }
 @keyframes creditSheen { from { transform: translateX(0) skewX(-18deg) } 45%, to { transform: translateX(520%) skewX(-18deg) } }
@@ -451,7 +487,7 @@ html.swap .hdr-t, html.swap .list { opacity: 0 }
 }
 
 /* Phones inside a browser and small laptops: slimmer buttons, a smaller emblem and no tagline */
-html.compact { --u: clamp(.84px, min(calc(var(--w) / 355), calc(var(--h) / 668)), 1px); --pad-y: clamp(3px, calc((var(--h) - 650px) * .05), 7px); --logo: clamp(50px, calc(var(--h) * .4 - 197px), 100px) }
+html.compact { --u: calc(clamp(.84px, min(calc(var(--w) / 355), calc(var(--h) / 668)), 1px) * var(--k)); --pad-y: calc(clamp(3px, calc((var(--h) - 650px) * .05), 7px) * var(--k)); --logo: clamp(50px, calc(var(--h) * .4 - 197px), 100px) }
 html.compact .app-tag { display: none }
 html.compact .lh { padding-top: calc(5 * var(--u)) }
 html.compact .lh-line { margin-top: calc(4 * var(--u)) }
@@ -478,7 +514,7 @@ html.compact .lh-line { margin-top: calc(4 * var(--u)) }
 }
 
 /* Very short screens: the emblem sits beside the title */
-html.tiny { --u: clamp(.84px, min(calc(var(--w) / 355), calc(var(--h) / 585)), 1px); --logo: clamp(48px, calc((var(--h) - 400px) * .36), 60px) }
+html.tiny { --u: calc(clamp(.84px, min(calc(var(--w) / 355), calc(var(--h) / 585)), 1px) * var(--k)); --logo: clamp(48px, calc((var(--h) - 400px) * .36), 60px) }
 html.tiny .hdr { flex-flow: row wrap; align-items: center; text-align: start; padding: 5px 12px 2px }
 html.tiny .hdr .orbit, html.tiny .hdr .hair, html.tiny .hdr .halo { display: none }
 html.tiny .hdr-id { flex: 1 1 0; min-width: 0; margin-inline-start: 10px; padding-inline-end: 92px }
@@ -487,23 +523,23 @@ html.tiny .app-title { font-size: calc(21 * var(--u)) }
 html.tiny .lh { flex: 0 0 100%; padding: 2px 0 0; text-align: center }
 html.tiny .rule { display: none }
 html.tiny .lh-line { margin-top: 0 }
-html.tiny .row { min-height: clamp(44px, calc(var(--h) * .09), 50px) }
+html.tiny .row { min-height: calc(clamp(44px, calc(var(--h) * .09), 50px) * var(--k)) }
 html.tiny .lang { top: 3px }
 html.tiny[dir="rtl"] .lang { left: 10px; right: auto }
 html.tiny[dir="ltr"] .lang { left: auto; right: 10px }
 
 /* Phones in landscape: emblem and credit on one side, buttons on the other */
 @media (orientation: landscape) and (max-height: 520px) {
-  :root { --logo: clamp(56px, calc(var(--h) * .26), 104px); --gap: 5px; --pad-y: 3px; --R: 22px; --hb: 38px }
+  :root { --logo: clamp(56px, calc(var(--h) * .26), 104px); --gap: calc(4px * var(--k)); --pad-y: 3px; --R: 22px; --hb: 38px }
   .app { display: grid; grid-template-columns: minmax(250px, 34%) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto }
   .hdr { grid-column: 1; grid-row: 1; justify-content: center; padding: 8px }
   .lang { position: relative; top: auto; left: auto; margin-bottom: 8px }
-  .list { grid-column: 2; grid-row: 1 / 3; align-self: center; padding: 8px 4px 8px 12px }
-  html[dir="ltr"] .list { padding: 8px 12px 8px 4px }
+  .list { grid-column: 2; grid-row: 1 / 3; align-self: center; padding: 4px 4px 4px 12px }
+  html[dir="ltr"] .list { padding: 4px 12px 4px 4px }
   .ftr { grid-column: 1; grid-row: 2; padding: 4px 6px }
   .hosp { margin-left: 8px }
   .credit { padding: 0 12px; font-size: min(calc(11 * var(--u)), 1.45vw) }
-  .row { min-height: 44px }
+  .row { min-height: calc(44px * var(--k)) }
   .note { margin-top: 2px }
   .org { margin-top: calc(var(--logo) * .1); font-size: calc(12.5 * var(--u)) }
   .app-title { font-size: calc(22 * var(--u)) }
@@ -990,6 +1026,18 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
         <span class="txt"><span class="t dl" data-i18n="salem">تطبيق سالم</span><span class="s" data-i18n="salemSub2">لأجهزة الأندرويد</span></span>
       </a>
     </div>
+
+    <!-- MOH ESS (الخدمات الذاتية), the ministry's employee self-service app, built like the Salem pair -->
+    <div class="pair">
+      <a class="row c7" rel="noopener noreferrer" href="https://apps.apple.com/us/app/moh-ess-%D8%A7%D9%84%D8%AE%D8%AF%D9%85%D8%A7%D8%AA-%D8%A7%D9%84%D8%B0%D8%A7%D8%AA%D9%8A%D8%A9/id6747656588">
+        <span class="badge logo"><span class="badge-glow" aria-hidden="true"></span><img src="assets/moh-ess-logo.png" width="216" height="216" alt="" draggable="false"></span>
+        <span class="txt"><span class="t dl" lang="en">MOH ESS</span><span class="s" data-i18n="essSub">لأجهزة أبل</span></span>
+      </a>
+      <a class="row c8" rel="noopener noreferrer" href="https://play.google.com/store/apps/details?id=com.mohkw.erp">
+        <span class="badge logo"><span class="badge-glow" aria-hidden="true"></span><img src="assets/moh-ess-logo.png" width="216" height="216" alt="" draggable="false"></span>
+        <span class="txt"><span class="t dl" lang="en">MOH ESS</span><span class="s" data-i18n="essSub2">لأجهزة الأندرويد</span></span>
+      </a>
+    </div>
   </main>
 
   <footer class="ftr">
@@ -1130,6 +1178,11 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
 (function () {
   var root = document.documentElement;
   window.jahraFit();
+  // The web fonts change line widths once they arrive, so fit again then
+  if (document.fonts) {
+    if (document.fonts.ready) document.fonts.ready.then(function () { window.jahraFit(); });
+    if (document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', function () { window.jahraFit(); });
+  }
   var TEXT = {
     ar: {
       app: 'منصة الجهراء',
@@ -1146,6 +1199,8 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
       salem: 'تطبيق سالم',
       salemSub: 'لأجهزة أبل',
       salemSub2: 'لأجهزة الأندرويد',
+      essSub: 'لأجهزة أبل',
+      essSub2: 'لأجهزة الأندرويد',
       org: 'منطقة الجهراء الصحية',
       under: 'المنصة تحت إشراف ورعاية مدير منطقة الجهراء الصحية',
       name: 'الدكتور / أحمد خاجه',
@@ -1189,6 +1244,8 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
       salem: 'Salem',
       salemSub: 'For Apple',
       salemSub2: 'For Android',
+      essSub: 'For Apple',
+      essSub2: 'For Android',
       org: 'Jahra Health Region',
       under: 'This platform is under the supervision and patronage of the Director of Jahra Health Region',
       name: 'Dr. Ahmed Khajah',
@@ -1230,6 +1287,8 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
     each('[data-i18n-alt]', function (node) { node.alt = dict[node.getAttribute('data-i18n-alt')]; });
     syncPause();
     gdLangChanged();
+    // English lines run longer, so measure the fit again
+    window.jahraFit();
   }
 
   function markLang(lang) {
