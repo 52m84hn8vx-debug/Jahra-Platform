@@ -336,23 +336,25 @@ html[dir="rtl"] .chev { transform: scaleX(-1) }
 
 /* Explain button on the reset card (approved canvas button 3, the focus lens). It sits over the arrow's place,
    and the card keeps an empty slot of the arrow's exact width, so no text moves or wraps */
-.rowx { position: relative; margin-top: var(--gap) }
+/* The explain disc is now a little larger than the card's own icon (--xd), so it is easy to see and tap.
+   The card keeps an empty slot of the disc's width, so the words never run under it */
+.rowx { --xd: clamp(38px, calc(46 * var(--u)), 54px); position: relative; margin-top: var(--gap) }
 .rowx + .row { margin-top: var(--gap) }
-.xp-space { width: calc(18 * var(--u)); height: calc(18 * var(--u)) }
+.xp-space { width: var(--xd); height: 1px }
 .xp {
-  position: absolute; z-index: 2; top: 0; bottom: 0; width: 44px;
+  position: absolute; z-index: 2; top: 0; bottom: 0; width: calc(var(--xd) + 8px);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   color: var(--gold);
   transition: transform .16s cubic-bezier(.2, .8, .2, 1);
   animation: rise .7s cubic-bezier(.16, 1, .3, 1) backwards; animation-delay: calc(2.85s + 80ms + 120ms);
 }
-/* Centered on the arrow's place: the card's end padding (14) plus half the arrow (9) */
-html[dir="rtl"] .xp { left: calc(23 * var(--u) - 22px) }
-html[dir="ltr"] .xp { right: calc(23 * var(--u) - 22px) }
+/* Centered on its slot: the card's end padding (14), less half the extra 8px of tap area */
+html[dir="rtl"] .xp { left: calc(14 * var(--u) - 4px) }
+html[dir="ltr"] .xp { right: calc(14 * var(--u) - 4px) }
 .xp:active { transform: scale(.92) }
 .xp-disc {
   position: relative; display: flex; align-items: center; justify-content: center; border-radius: 50%;
-  width: clamp(30px, calc(36 * var(--u)), 40px); height: clamp(30px, calc(36 * var(--u)), 40px);
+  width: var(--xd); height: var(--xd);
   background: var(--surface); box-shadow: inset 0 0 0 1px rgba(255, 197, 49, .35), 0 4px 12px rgba(0, 0, 0, .35);
 }
 .xp-ring {
@@ -365,7 +367,7 @@ html[dir="ltr"] .xp { right: calc(23 * var(--u) - 22px) }
 .xp-disc svg { position: relative; display: block; width: 61%; height: 61%; overflow: visible }
 .xp-dot { transform-origin: 12px 12px; animation: xpDot 1.8s ease-in-out infinite }
 .xp-corners { transform-origin: 12px 12px; animation: xpFocus 3s ease-in-out infinite }
-.xp-label { margin-top: 2px; font-size: max(10px, calc(11.5 * var(--u))); font-weight: 700; line-height: 1.1 }
+.xp-label { margin-top: 3px; font-size: max(11px, calc(13 * var(--u))); font-weight: 700; line-height: 1.1 }
 @keyframes xpDot { 0%, 100% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.6); opacity: .55 } }
 @keyframes xpFocus { 0%, 60%, 100% { transform: scale(1) } 75% { transform: scale(.8) } 88% { transform: scale(1) } }
 
@@ -500,9 +502,9 @@ html.compact .lh-line { margin-top: calc(4 * var(--u)) }
   .list { padding: 0 8px }
   .row { padding-left: 10px; padding-right: 10px }
   .txt { margin-inline-start: 8px; margin-inline-end: 4px }
-  .chev, .xp-space { width: 14px; height: 14px }
-  html[dir="rtl"] .xp { left: -5px }
-  html[dir="ltr"] .xp { right: -5px }
+  .chev { width: 14px; height: 14px }
+  html[dir="rtl"] .xp { left: 6px }
+  html[dir="ltr"] .xp { right: 6px }
   html[lang="en"] .t.dl { font-size: 12.5px }
   .pair { display: block }
   .pair .row { padding-left: 10px; padding-right: 10px }
@@ -919,12 +921,128 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
   .gd-d, html.compact .gd-d { font-size: 13.5px; line-height: 1.6 }
 }
 
+/* Guide intro: a cover that says what the guide shows before step 1. A fanned stack of the guide's own screenshots carries
+   its light; "Start" carries the front picture into the stage, where step 1 continues from it. Back on step 1 returns here */
+.gd-intro {
+  position: absolute; z-index: 4; top: 0; right: 0; bottom: 0; left: 0;
+  display: flex; flex-direction: column; overflow: hidden;
+  background: radial-gradient(130% 62% at 50% 30%, #0B2744 0, #04111F 64%);
+  visibility: hidden; opacity: 0; transition: opacity .3s ease, visibility 0s linear .3s;
+}
+.gd.intro .gd-intro { visibility: visible; opacity: 1; transition: opacity .3s ease, visibility 0s }
+/* The steps stay laid out under the cover (their sizes are measured), hidden once the cover has faded in */
+.gd.intro .gd-sheet > :not(.gd-intro):not(.gd-live) { visibility: hidden; transition: visibility 0s linear .3s }
+.gdi-x { position: absolute; z-index: 3; top: 16px }
+html[dir="rtl"] .gdi-x { left: 16px }
+html[dir="ltr"] .gdi-x { right: 16px }
+
+/* The top padding keeps the pictures clear of the close button */
+.gdi-hero { position: relative; flex: 1 1 0; min-height: 90px; display: flex; align-items: center; justify-content: center; padding-top: 58px }
+.gdi-glow { position: absolute; left: 50%; top: 56%; width: 340px; height: 340px; margin: -170px 0 0 -170px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 197, 49, .2), rgba(255, 197, 49, 0)) }
+.gdi-stack { position: relative; width: 150px; height: 276px }
+.gdi-card {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; border-radius: 16px;
+  background: #E9EEF3; box-shadow: 0 0 0 1px rgba(255, 197, 49, .32), 0 18px 40px rgba(0, 0, 0, .5);
+}
+.gdi-card img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; pointer-events: none }
+.gdi-b1, .gdi-b2 { box-shadow: 0 0 0 1px rgba(255, 255, 255, .12), 0 14px 30px rgba(0, 0, 0, .45) }
+.gdi-b1 { transform: translateX(-34%) rotate(-9deg) scale(.86) }
+.gdi-b2 { transform: translateX(34%) rotate(9deg) scale(.86) }
+.gdi-b1::after, .gdi-b2::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: rgba(4, 17, 31, .58) }
+.gdi-front { z-index: 2 }
+/* The same light as step 1, on the same place */
+.gdi-spot { position: absolute; left: calc(9% - 4px); top: calc(28.4% - 4px); width: calc(82% + 8px); height: calc(7.6% + 8px); border-radius: 10px; box-shadow: 0 0 0 999px rgba(3, 13, 24, .64) }
+.gdi-spot .gd-ring { border-radius: 13px }
+
+.gdi-body { position: relative; flex: 0 0 auto; padding: 12px 22px 18px; text-align: center }
+.gdi-eyebrow { margin: 0; font-size: 13px; font-weight: 700; line-height: 1.5; color: var(--gold) }
+.gdi-title { margin: 3px 0 0; font-size: 25px; font-weight: 700; line-height: 1.35; color: var(--ink); text-wrap: balance }
+.gdi-lead { margin: 6px auto 0; max-width: 340px; font-size: 15px; line-height: 1.75; color: #C9D9E8; text-wrap: balance }
+.gdi-need { margin: 14px 0 0; padding: 11px 8px 12px; border-radius: 18px; background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px rgba(255, 197, 49, .22) }
+.gdi-need-h { margin: 0 0 9px; font-size: 13px; font-weight: 700; line-height: 1.4; color: #EFE3B8 }
+.gdi-list { list-style: none; margin: 0; padding: 0; display: flex }
+.gdi-list li { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; padding: 0 3px; font-size: 13px; font-weight: 600; line-height: 1.4; color: var(--ink); text-wrap: balance }
+.gdi-ic {
+  display: flex; flex: 0 0 auto; width: 38px; height: 38px; margin-bottom: 6px; align-items: center; justify-content: center; border-radius: 50%;
+  background: rgba(255, 197, 49, .12); box-shadow: inset 0 0 0 1px rgba(255, 197, 49, .45); color: var(--gold);
+}
+.gdi-ic svg { display: block; width: 20px; height: 20px }
+.gdi-start {
+  position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; height: 54px; margin-top: 16px; border-radius: 27px;
+  background: var(--gold); color: var(--on-badge); font-size: 17px; font-weight: 700;
+  box-shadow: 0 8px 24px rgba(255, 197, 49, .28);
+  transition: transform .16s cubic-bezier(.2, .8, .2, 1);
+}
+.gdi-start:active { transform: scale(.97) }
+.gdi-start svg { position: relative; z-index: 1; display: block; width: 20px; height: 20px }
+.gdi-start span { position: relative; z-index: 1 }
+.gdi-start::after { content: ""; position: absolute; top: 0; bottom: 0; left: -40%; width: 28%; background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .55), rgba(255, 255, 255, 0)); transform: skewX(-18deg); animation: gdiSheen 3.8s ease-in-out 1.8s infinite }
+.gd .gdi-start:focus-visible { outline-offset: 3px }
+.gdi-hint { display: flex; align-items: center; justify-content: center; margin: 12px 0 0; font-size: 13px; line-height: 1.5; color: #9FB3C8 }
+.gdi-hint::before { content: ""; flex: 0 0 auto; width: 8px; height: 8px; margin-inline-end: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 3px rgba(255, 197, 49, .22) }
+@keyframes gdiSheen { from { transform: translateX(0) skewX(-18deg) } 40%, to { transform: translateX(560%) skewX(-18deg) } }
+
+/* Opening: the cards deal out of the front picture, then the words rise one after another */
+.gd.enter .gdi-front { animation: gdiRise .8s cubic-bezier(.22, 1, .36, 1) .32s backwards }
+.gd.enter .gdi-b1, .gd.enter .gdi-b2 { animation: gdiDeal .9s cubic-bezier(.22, 1, .36, 1) .6s backwards }
+.gd.enter .gdi-body > * { animation: gdiUp .6s cubic-bezier(.22, 1, .36, 1) .5s backwards }
+.gd.enter .gdi-title { animation-delay: .56s }
+.gd.enter .gdi-lead { animation-delay: .62s }
+.gd.enter .gdi-need { animation-delay: .7s }
+.gd.enter .gdi-start { animation-delay: .78s }
+.gd.enter .gdi-hint { animation-delay: .86s }
+@keyframes gdiRise { from { opacity: 0; transform: translateY(26px) scale(.94) } }
+@keyframes gdiDeal { from { transform: none } }
+@keyframes gdiUp { from { opacity: 0; transform: translateY(12px) } }
+/* Start: everything but the front picture fades while it flies to the stage */
+.gd.flying .gdi-body, .gd.flying .gdi-b1, .gd.flying .gdi-b2, .gd.flying .gdi-glow, .gd.flying .gdi-x { opacity: 0; transition: opacity .22s ease }
+.gd.flying .gdi-spot { box-shadow: 0 0 0 999px rgba(3, 13, 24, .64) }
+
+html.compact .gdi-body { padding: 10px 20px 14px }
+html.compact .gdi-title { font-size: 22px }
+html.compact .gdi-lead { font-size: 14px; line-height: 1.7 }
+html.compact .gdi-need { margin-top: 12px; padding: 9px 6px 10px }
+html.compact .gdi-ic { width: 34px; height: 34px; margin-bottom: 5px }
+html.compact .gdi-ic svg { width: 18px; height: 18px }
+html.compact .gdi-start { height: 50px; margin-top: 12px; font-size: 16.5px }
+html.compact .gdi-hint { margin-top: 9px; font-size: 12.5px }
+html.tiny .gdi-hero { padding-top: 14px }
+html.tiny .gdi-body { padding: 6px 16px 10px }
+html.tiny .gdi-eyebrow { font-size: 12px }
+html.tiny .gdi-title { font-size: 20px }
+html.tiny .gdi-lead { margin-top: 3px; font-size: 13px; line-height: 1.6 }
+html.tiny .gdi-need { margin-top: 8px; padding: 8px 4px }
+html.tiny .gdi-need-h, html.tiny .gdi-hint { display: none }
+html.tiny .gdi-list li { font-size: 12px }
+html.tiny .gdi-start { height: 46px; margin-top: 10px }
+
+/* Phones lying flat: the pictures on one side, the words on the other */
+@media (orientation: landscape) and (max-height: 520px) {
+  .gd-intro { flex-direction: row }
+  .gdi-hero { flex: 0 0 40%; padding: 10px 0 }
+  .gdi-body { flex: 1 1 auto; align-self: center; max-height: 100%; overflow-y: auto; padding: 12px 18px 12px }
+  html[dir="rtl"] .gdi-body { padding-left: 70px }
+  html[dir="ltr"] .gdi-body { padding-right: 70px }
+  .gdi-x { top: 10px }
+  .gdi-title, html.compact .gdi-title { font-size: 20px }
+  .gdi-lead, html.compact .gdi-lead { font-size: 13.5px; line-height: 1.6 }
+  .gdi-need, html.compact .gdi-need { margin-top: 10px; padding: 8px 4px }
+  .gdi-need-h { display: none }
+  .gdi-ic, html.compact .gdi-ic { width: 30px; height: 30px; margin-bottom: 4px }
+  .gdi-ic svg, html.compact .gdi-ic svg { width: 16px; height: 16px }
+  .gdi-list li { font-size: 12px }
+  .gdi-start, html.compact .gdi-start { height: 44px; margin-top: 10px; font-size: 15.5px }
+  .gdi-hint { display: none }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .gd.open .gd-sheet { animation: jcFade .25s ease-out backwards }
   .gd.closing .gd-sheet { animation: jcFadeOut .2s ease-in forwards }
   .gd-spot { transition: none }
   .gd.open .gd-spot, .gd-ring, .gd-tap, .gd-tap::before, .gd-tap::after, .gd-x-halo, .gd-num.anim, .gd-txt.anim { animation: none }
   .gd-slide { transform: none; transition: opacity .3s ease }
+  .gd.enter .gdi-front, .gd.enter .gdi-b1, .gd.enter .gdi-b2, .gd.enter .gdi-body > *, .gdi-start::after { animation: none }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1158,6 +1276,37 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
       <button type="button" class="gd-next" id="gdNext"><span data-i18n="gdNext">التالي</span><svg class="gd-flip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
       <a class="gd-go" id="gdGo" href="https://eservices.moh.gov.kw/time365/services/Login.aspx" rel="noopener noreferrer" hidden><span data-i18n="gdGo">ابدأ الآن</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a>
     </div>
+
+    <!-- Intro: says what the guide shows before the first step. "Start" carries the front picture into the stage -->
+    <div class="gd-intro" id="gdIntro">
+      <button type="button" class="gd-x gdi-x" id="gdiClose" aria-label="إغلاق الشرح" data-i18n-aria="gdClose">
+        <span class="gd-x-halo" aria-hidden="true"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+      <div class="gdi-hero" id="gdiHero" aria-hidden="true">
+        <span class="gdi-glow"></span>
+        <div class="gdi-stack" id="gdiStack">
+          <span class="gdi-card gdi-b1"><img data-src="assets/guide/step-02.jpg" alt="" draggable="false"></span>
+          <span class="gdi-card gdi-b2"><img data-src="assets/guide/step-03.jpg" alt="" draggable="false"></span>
+          <span class="gdi-card gdi-front" id="gdiFront"><img data-src="assets/guide/step-01.jpg" alt="" draggable="false"><span class="gdi-spot"><span class="gd-ring"></span></span></span>
+        </div>
+      </div>
+      <div class="gdi-body">
+        <p class="gdi-eyebrow" data-i18n="gdiEyebrow">دليل مصوّر · 11 خطوة</p>
+        <h3 class="gdi-title" data-i18n="gdiTitle">خطوات إعادة&nbsp;تعيين كلمة&nbsp;المرور</h3>
+        <p class="gdi-lead" data-i18n="gdiLead">تعرض لك هذه الصفحة بالصور كيف تعيد تعيين كلمة&nbsp;المرور لبرنامج البصمة أو الإيميل الوزاري، خطوة بخطوة.</p>
+        <div class="gdi-need">
+          <p class="gdi-need-h" data-i18n="gdiNeed">قبل أن تبدأ، جهّز:</p>
+          <ul class="gdi-list">
+            <li><span class="gdi-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="10.6" r="2"/><path d="M5.6 15.6c.6-1.3 1.6-2 2.9-2s2.3.7 2.9 2"/><path d="M14.5 10h4M14.5 13.5h3"/></svg></span><span data-i18n="gdiNeed1">الرقم المدني</span></li>
+            <li><span class="gdi-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.6 18.4h2.8"/><path d="m9.6 10.6 1.7 1.7 3.2-3.4"/></svg></span><span data-i18n="gdiNeed2">برنامج هويتي على جوالك</span></li>
+            <li><span class="gdi-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><path d="M9 15.5h.01M12 15.5h.01M15 15.5h.01" stroke-width="2.6"/></svg></span><span data-i18n="gdiNeed3">الرقم السري لهويتي</span></li>
+          </ul>
+        </div>
+        <button type="button" class="gdi-start" id="gdiStart"><span data-i18n="gdiStart">ابدأ الشرح</span><svg class="gd-flip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+        <p class="gdi-hint" data-i18n="gdSub">اتبع الضوء، فهو يدلّك أين تضغط</p>
+      </div>
+    </div>
   </section>
 </div>
 
@@ -1227,7 +1376,16 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
       gdClose: 'إغلاق الشرح',
       gdPrev: 'السابق',
       gdNext: 'التالي',
-      gdGo: 'ابدأ الآن'
+      gdGo: 'ابدأ الآن',
+      gdiEyebrow: 'دليل مصوّر · 11 خطوة',
+      // No-break spaces keep «إعادة تعيين» and «كلمة المرور» on one line each
+      gdiTitle: 'خطوات إعادة تعيين كلمة المرور',
+      gdiLead: 'تعرض لك هذه الصفحة بالصور كيف تعيد تعيين كلمة المرور لبرنامج البصمة أو الإيميل الوزاري، خطوة بخطوة.',
+      gdiNeed: 'قبل أن تبدأ، جهّز:',
+      gdiNeed1: 'الرقم المدني',
+      gdiNeed2: 'برنامج هويتي على جوالك',
+      gdiNeed3: 'الرقم السري لهويتي',
+      gdiStart: 'ابدأ الشرح'
     },
     en: {
       app: 'Jahra Platform',
@@ -1272,7 +1430,15 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
       gdClose: 'Close the guide',
       gdPrev: 'Back',
       gdNext: 'Next',
-      gdGo: 'Start now'
+      gdGo: 'Start now',
+      gdiEyebrow: 'Illustrated guide · 11 steps',
+      gdiTitle: 'Steps to Reset the Password',
+      gdiLead: 'This page shows you, picture by picture, how to reset the password for the Smart Attendance app or the Ministry e-⁠mail.',
+      gdiNeed: 'Before you start, have ready:',
+      gdiNeed1: 'Your Civil ID',
+      gdiNeed2: 'The Hawiyati app on your phone',
+      gdiNeed3: 'Your Hawiyati PIN',
+      gdiStart: 'Start the guide'
     }
   };
 
@@ -1496,9 +1662,15 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
   var gdPrev = document.getElementById('gdPrev');
   var gdNext = document.getElementById('gdNext');
   var gdGo = document.getElementById('gdGo');
+  var gdIntro = document.getElementById('gdIntro');
+  var gdiClose = document.getElementById('gdiClose');
+  var gdiStart = document.getElementById('gdiStart');
+  var gdiHero = document.getElementById('gdiHero');
+  var gdiStack = document.getElementById('gdiStack');
+  var gdiFront = document.getElementById('gdiFront');
   var GD_A = 0.57; // stage width / height; the widest screenshot is 0.549, so each one fits with a little room
   var gdSlides = [], gdImgs = [], gdTicks = [];
-  var gdCur = 0, gdSub = 0, gdBeat = 0, gdTimer = 0, gdFocusTimer = 0, gdX0 = null;
+  var gdCur = 0, gdSub = 0, gdBeat = 0, gdTimer = 0, gdFocusTimer = 0, gdFlyTimer = 0, gdX0 = null;
 
   GUIDE.forEach(function (step) {
     var w = step.r / GD_A * 100;
@@ -1583,14 +1755,16 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
     gdLoad(gdCur + 2);
     gdNum.textContent = String(gdCur + 1);
     gdWords(gdCur);
-    gdLive.textContent = (lang === 'ar' ? 'الخطوة ' + (gdCur + 1) + ' من 11: ' : 'Step ' + (gdCur + 1) + ' of 11: ') + GUIDE[gdCur][lang].t;
-    gdPrev.disabled = gdCur === 0;
+    if (!gd.classList.contains('intro')) {
+      gdLive.textContent = (lang === 'ar' ? 'الخطوة ' + (gdCur + 1) + ' من 11: ' : 'Step ' + (gdCur + 1) + ' of 11: ') + GUIDE[gdCur][lang].t;
+    }
+    // Back on step 1 returns to the intro, so it is never disabled
+    gdPrev.disabled = false;
     gdNext.hidden = last;
     gdGo.hidden = !last;
     // Keep the keyboard focus on a visible button when the one under it disappears
     if (active === gdNext && last) gdGo.focus();
     else if (active === gdGo && !last) gdNext.focus();
-    else if (active === gdPrev && gdCur === 0) gdNext.focus();
     gdPlaceSpot();
     if (animate) {
       gdReplay(gdNum, 'anim');
@@ -1640,6 +1814,60 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
     }
     gdStage.style.width = Math.max(0, Math.floor(w)) + 'px';
     gdStage.style.height = Math.max(0, Math.floor(h)) + 'px';
+    // The intro's picture stack fills the room its words leave, in step 1's own proportions
+    var r = GUIDE[0].r, pad = gdFlat() ? 20 : parseFloat(getComputedStyle(gdiHero).paddingTop) + 8;
+    var ch = Math.min(gdiHero.clientHeight - pad, 330), cw = ch * r;
+    if (cw > gdiHero.clientWidth * 0.46) { cw = gdiHero.clientWidth * 0.46; ch = cw / r; }
+    gdiStack.style.width = Math.max(0, Math.floor(cw)) + 'px';
+    gdiStack.style.height = Math.max(0, Math.floor(ch)) + 'px';
+  }
+  // Start: the front picture flies to step 1's place on the stage, then the steps take over from it
+  function gdStart() {
+    if (gd.hidden || !gd.classList.contains('intro') || gd.classList.contains('flying')) return;
+    var fromIntro = gdIntro.contains(document.activeElement) || document.activeElement === gdSheet;
+    gdCur = 0;
+    gdSub = 0;
+    gdRender(false);
+    gd.classList.remove('enter');
+    var from = gdiFront.getBoundingClientRect(), stage = gdStage.getBoundingClientRect();
+    var w = GUIDE[0].r / GD_A, to = { left: stage.left + stage.width * (1 - w) / 2, top: stage.top, width: stage.width * w, height: stage.height };
+    function finish() {
+      gd.classList.remove('intro', 'flying');
+      gdRender(true);
+      gdStartBeat();
+      if (fromIntro) { try { gdNext.focus({ preventScroll: true }); } catch (e) { gdNext.focus(); } }
+      // Put the picture back while the cover is out of sight
+      gdFlyTimer = setTimeout(function () {
+        gdiFront.style.transition = 'none';
+        gdiFront.style.transform = '';
+      }, 340);
+    }
+    clearTimeout(gdFlyTimer);
+    if (calm.matches || !from.width || !to.width) { finish(); return; }
+    var s = to.width / from.width;
+    var dx = to.left + to.width / 2 - (from.left + from.width / 2);
+    var dy = to.top + to.height / 2 - (from.top + from.height / 2);
+    gd.classList.add('flying');
+    gdiFront.style.transition = 'transform .62s cubic-bezier(.65, 0, .35, 1)';
+    void gdiFront.offsetWidth;
+    gdiFront.style.transform = 'translate(' + dx.toFixed(1) + 'px, ' + dy.toFixed(1) + 'px) scale(' + s.toFixed(4) + ')';
+    gdFlyTimer = setTimeout(finish, 640);
+  }
+  // Back from step 1: the cover fades in over the steps
+  function gdToIntro() {
+    if (gd.hidden || gd.classList.contains('intro')) return;
+    var hadFocus = gdSheet.contains(document.activeElement);
+    clearInterval(gdBeat);
+    clearTimeout(gdFlyTimer);
+    gdiFront.style.transition = 'none';
+    gdiFront.style.transform = '';
+    gd.classList.add('intro');
+    gdLive.textContent = gdIntro.querySelector('.gdi-title').textContent;
+    if (hadFocus) { try { gdiStart.focus({ preventScroll: true }); } catch (e) { gdiStart.focus(); } }
+  }
+  function gdBack() {
+    if (gdCur === 0) gdToIntro();
+    else gdGoTo(gdCur - 1);
   }
   function gdBehind(off) {
     app.inert = off;
@@ -1650,7 +1878,15 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
   function gdShow() {
     if (!gd.hidden && !gd.classList.contains('closing')) return;
     clearTimeout(gdTimer);
-    gd.classList.remove('closing', 'open');
+    clearTimeout(gdFlyTimer);
+    gd.classList.remove('closing', 'open', 'flying');
+    // Every opening starts on the intro
+    gd.classList.add('intro', 'enter');
+    gdiFront.style.transition = 'none';
+    gdiFront.style.transform = '';
+    Array.prototype.forEach.call(gdIntro.querySelectorAll('img[data-src]'), function (img) {
+      if (!img.getAttribute('src')) img.src = img.getAttribute('data-src');
+    });
     gd.hidden = false;
     // The circle opens from the explain button itself
     var b = gdOpenBtn.getBoundingClientRect(), g = gd.getBoundingClientRect();
@@ -1676,6 +1912,7 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
   function gdHide() {
     if (gd.hidden || gd.classList.contains('closing')) return;
     clearTimeout(gdFocusTimer);
+    clearTimeout(gdFlyTimer);
     clearInterval(gdBeat);
     gd.classList.remove('open');
     gd.classList.add('closing');
@@ -1697,23 +1934,29 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
   gdOpenBtn.addEventListener('mousedown', gdWarm);
   gdOpenBtn.addEventListener('click', gdShow);
   gdClose.addEventListener('click', gdHide);
-  gdPrev.addEventListener('click', function () { gdGoTo(gdCur - 1); });
+  gdiClose.addEventListener('click', gdHide);
+  gdiStart.addEventListener('click', gdStart);
+  gdPrev.addEventListener('click', gdBack);
   gdNext.addEventListener('click', function () { gdGoTo(gdCur + 1); });
   gdGo.addEventListener('click', function () {
     try { sessionStorage.setItem('jahra-back', '1'); } catch (e) {}
   });
-  // Swipe: the next step comes from the reading direction's end
-  gdStage.addEventListener('pointerdown', function (event) { gdX0 = event.clientX; });
-  gdStage.addEventListener('pointercancel', function () { gdX0 = null; });
-  gdStage.addEventListener('pointerup', function (event) {
-    if (gdX0 === null) return;
-    var dx = event.clientX - gdX0;
-    gdX0 = null;
-    if (Math.abs(dx) < 40) return;
-    var forward = gdLang() === 'ar' ? dx > 0 : dx < 0;
-    gdGoTo(gdCur + (forward ? 1 : -1));
-  });
+  // Swipe: the next step comes from the reading direction's end. On the intro, a forward swipe starts the guide
+  function gdSwipe(node, onForward, onBack) {
+    node.addEventListener('pointerdown', function (event) { gdX0 = event.clientX; });
+    node.addEventListener('pointercancel', function () { gdX0 = null; });
+    node.addEventListener('pointerup', function (event) {
+      if (gdX0 === null) return;
+      var dx = event.clientX - gdX0;
+      gdX0 = null;
+      if (Math.abs(dx) < 40) return;
+      if (gdLang() === 'ar' ? dx > 0 : dx < 0) onForward(); else onBack();
+    });
+  }
+  gdSwipe(gdStage, function () { gdGoTo(gdCur + 1); }, gdBack);
+  gdSwipe(gdiHero, gdStart, function () {});
   gd.addEventListener('keydown', function (event) {
+    var onIntro = gd.classList.contains('intro');
     if (event.key === 'Escape' || event.key === 'Esc') {
       event.preventDefault();
       gdHide();
@@ -1722,11 +1965,14 @@ html.tiny .gd-nav { height: 46px; margin: 6px 12px 10px }
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault();
       var toLeft = event.key === 'ArrowLeft';
-      gdGoTo(gdCur + ((gdLang() === 'ar' ? toLeft : !toLeft) ? 1 : -1));
+      var forward = gdLang() === 'ar' ? toLeft : !toLeft;
+      if (onIntro) { if (forward) gdStart(); }
+      else if (forward) gdGoTo(gdCur + 1);
+      else gdBack();
       return;
     }
     if (event.key !== 'Tab') return;
-    var stops = [gdClose, gdPrev, gdNext, gdGo].filter(function (node) { return !node.hidden && !node.disabled; });
+    var stops = (onIntro ? [gdiClose, gdiStart] : [gdClose, gdPrev, gdNext, gdGo]).filter(function (node) { return !node.hidden && !node.disabled; });
     var first = stops[0], last = stops[stops.length - 1];
     var active = document.activeElement;
     if (event.shiftKey && (active === first || active === gdSheet)) {
