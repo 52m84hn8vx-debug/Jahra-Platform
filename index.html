@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&amp;display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&amp;text=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%20%26-.%2C&amp;display=swap">
 <!-- Hospital summary card fonts (model 4, the pulse), loaded without blocking the page -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Changa:wght@600&amp;family=Tajawal:wght@400;500;700&amp;display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Changa:wght@600&amp;family=Montserrat:wght@500;600&amp;family=Tajawal:wght@400;500;700;800&amp;display=swap" media="print" onload="this.media='all'">
 <script>
 (function () {
   var root = document.documentElement;
@@ -1045,6 +1045,132 @@ html.tiny .gdi-start { height: 46px; margin-top: 10px }
   .gd.enter .gdi-front, .gd.enter .gdi-b1, .gd.enter .gdi-b2, .gd.enter .gdi-body > *, .gdi-start::after { animation: none }
 }
 
+/* Developer card (approved canvas model 5, the engineering orbit): the credit pill opens it.
+   The rings draw, the logo opens like an iris, the lines wipe in. Every animation hangs on .open, so it replays on each opening. */
+button.credit { margin: 0; border: 0; font-family: inherit; line-height: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .2s cubic-bezier(.34, 1.56, .64, 1) }
+button.credit:active { transform: scale(.96) }
+button.credit:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px }
+.dv {
+  position: fixed; z-index: 20;
+  top: calc(var(--ft) + var(--edge)); bottom: calc(var(--fb) + var(--edge));
+  left: calc(var(--fl) + var(--edge)); right: calc(var(--fr) + var(--edge));
+  border-radius: calc(var(--R) - var(--edge)); overflow: hidden; overflow: clip;
+  container-type: size;
+  background: radial-gradient(90% 60% at 50% 40%, #08202E 0%, #041019 65%, #02080D 100%);
+  font-family: 'Tajawal', 'Cairo', 'Segoe UI', Tahoma, sans-serif; color: #F2F7FC;
+}
+.dv[hidden] { display: none }
+.dv::before {
+  content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(79, 214, 232, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(79, 214, 232, .08) 1px, transparent 1px);
+  background-size: 26px 26px; background-position: center;
+}
+html.dv-on .frame::before, html.dv-on .app *, html.dv-on .app *::before, html.dv-on .app *::after { animation-play-state: paused !important }
+.dv ::selection { background: #4FD6E8; color: #041019 }
+.dv-in { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: center; padding: 66px 16px 22px; box-sizing: border-box; outline: none }
+.dv-body { display: flex; flex-direction: column; align-items: center; gap: 26px; min-width: 0 }
+.dv-stage { position: relative; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: min(300px, 72vw, 40vh); height: min(300px, 72vw, 40vh); width: min(300px, 74cqw, 40cqh); height: min(300px, 74cqw, 40cqh) }
+.dv-h { position: absolute; top: 50%; left: -22%; width: 144%; height: 1px; background: linear-gradient(90deg, rgba(79, 214, 232, 0), rgba(79, 214, 232, .45), rgba(79, 214, 232, 0)) }
+.dv-v { position: absolute; left: 50%; top: -31%; width: 1px; height: 162%; background: linear-gradient(180deg, rgba(79, 214, 232, 0), rgba(79, 214, 232, .4), rgba(79, 214, 232, 0)) }
+.dv-br { position: absolute; width: 22px; height: 22px; border: 0 solid #FFC531 }
+.dv-br1 { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px }
+.dv-br2 { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px }
+.dv-br3 { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px }
+.dv-br4 { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px }
+.dv-rings { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: visible }
+.dv-rings circle, .dv-orb { transform-box: fill-box; transform-origin: center }
+.dv-r-ticks { fill: none; stroke: rgba(79, 214, 232, .55); stroke-width: 8; stroke-dasharray: 1.4 12.21 }
+.dv-r-dash { fill: none; stroke: rgba(255, 255, 255, .22); stroke-width: 1; stroke-dasharray: 4 6 }
+.dv-r-arcs { fill: none; stroke: #FFC531; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 140 76.7 }
+.dv-r-in { fill: none; stroke: #4FD6E8; stroke-width: 1.2; stroke-dasharray: 742; stroke-dashoffset: 0; transform: rotate(-90deg) }
+.dv-logo { position: relative; width: 66.9%; height: 66.9%; border-radius: 50% }
+.dv-logo img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+  -webkit-mask-image: radial-gradient(closest-side circle at 50% 48.6%, #000 84%, transparent 93%);
+  mask-image: radial-gradient(closest-side circle at 50% 48.6%, #000 84%, transparent 93%);
+}
+.dv-scan { position: absolute; top: 4%; right: 4%; bottom: 4%; left: 4%; border-radius: 50%; overflow: hidden; pointer-events: none }
+.dv-scan::before { content: ""; position: absolute; right: 0; left: 0; top: 0; height: 2px; background: #9BF0FA; box-shadow: 0 0 12px 3px rgba(79, 214, 232, .7); opacity: 0 }
+.dv-text { display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 0 }
+.dv-text p, .dv-text h2 { margin: 0 }
+.dv-k { font-size: 16px; line-height: 1.5; font-weight: 500; color: #4FD6E8 }
+.dv-n { margin-top: 6px !important; font-size: 26px; font-size: clamp(23px, 7.7cqw, 30px); line-height: 1.35; font-weight: 800; color: #FFFFFF }
+.dv-e { margin-top: 6px !important; font-family: 'Montserrat', 'IBM Plex Sans Arabic', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: .24em; color: #FFC531; white-space: pre }
+.dv-div { display: block; width: 130px; height: 1px; margin: 14px 0 10px; background: linear-gradient(90deg, rgba(79, 214, 232, 0), rgba(79, 214, 232, .7), rgba(79, 214, 232, 0)) }
+.dv-a { font-size: 14px; font-size: min(15px, 4.5cqw); line-height: 1.5; font-weight: 700; color: #DDF8FC }
+.dv-a2 { margin-top: 10px !important }
+.dv-ae { margin-top: 2px !important; font-family: 'Montserrat', 'IBM Plex Sans Arabic', sans-serif; font-size: 11px; font-size: min(11.5px, 3.25cqw); line-height: 1.4; font-weight: 500; letter-spacing: .06em; color: #8FB8C4 }
+.dv-x {
+  position: absolute; z-index: 2; top: 14px; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  background: rgba(79, 214, 232, .06); color: #DDF8FC; transition: background .3s, color .3s;
+}
+html[dir="rtl"] .dv-x { left: 14px }
+html[dir="ltr"] .dv-x { right: 14px }
+.dv-x svg { display: block; width: 48px; height: 48px; overflow: visible }
+.dv-x-ring { fill: none; stroke: #4FD6E8; stroke-width: 1.5; stroke-dasharray: 3 4; transform-box: fill-box; transform-origin: center; animation: dvSpin 8s linear infinite; transition: stroke .3s }
+.dv-x-x { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; transform-box: fill-box; transform-origin: center; transition: transform .45s cubic-bezier(.3, 1.5, .5, 1) }
+.dv-x:active { background: rgba(255, 197, 49, .16) }
+@media (hover: hover) {
+  .dv-x:hover { background: rgba(255, 197, 49, .12); color: #FFC531 }
+  .dv-x:hover .dv-x-ring { stroke: #FFC531; animation-duration: 2s }
+  .dv-x:hover .dv-x-x { transform: rotate(90deg) }
+}
+.dv-x:focus-visible { outline: 2px solid #FFC531; outline-offset: 3px }
+
+.dv.open { animation: dvFade .4s ease both }
+.dv.open::before { animation: dvGrid 1.4s cubic-bezier(.5, 0, .2, 1) .1s both }
+.dv.open .dv-h { animation: dvGrowX .9s cubic-bezier(.6, 0, .2, 1) .3s both }
+.dv.open .dv-v { animation: dvGrowY .9s cubic-bezier(.6, 0, .2, 1) .4s both }
+.dv.open .dv-br { animation: dvBr .7s cubic-bezier(.2, .8, .2, 1) .5s both }
+.dv.open .dv-r-ticks { animation: dvFade .8s ease .6s both, dvSpin 60s linear .6s infinite }
+.dv.open .dv-r-dash { animation: dvFade .8s ease .7s both, dvSpin 30s linear .7s infinite reverse }
+.dv.open .dv-r-arcs { animation: dvArcs 1s cubic-bezier(.2, .8, .2, 1) .8s both, dvSpin 12s linear 1.8s infinite }
+.dv.open .dv-r-in { animation: dvDraw 1.2s cubic-bezier(.6, 0, .2, 1) .5s both }
+.dv.open .dv-orb { animation: dvFade .5s ease 1.4s both, dvSpin 5s linear 1.4s infinite }
+.dv.open .dv-logo { animation: dvIris 1s cubic-bezier(.7, 0, .2, 1) 1.1s both }
+.dv.open .dv-scan::before { animation: dvScan 4.5s cubic-bezier(.5, 0, .5, 1) 1.6s infinite }
+.dv.open .dv-k { animation: dvWipe .9s cubic-bezier(.6, 0, .2, 1) 1.5s both }
+.dv.open .dv-n { animation: dvWipe .9s cubic-bezier(.6, 0, .2, 1) 1.7s both }
+.dv.open .dv-fl { animation: dvFlick .7s steps(1, end) var(--d) both }
+.dv.open .dv-div { animation: dvGrowX .8s cubic-bezier(.6, 0, .2, 1) 2.45s both }
+.dv.open .dv-a { animation: dvWipe .9s cubic-bezier(.6, 0, .2, 1) 2.6s both }
+.dv.open .dv-ae { animation: dvUp .6s cubic-bezier(.2, .8, .2, 1) 2.8s both }
+.dv.open .dv-a2 { animation-delay: 2.95s }
+.dv.open .dv-ae2 { animation-delay: 3.15s }
+.dv.open .dv-x { animation: dvFade .4s ease 2s both }
+.dv.closing { animation: dvOut .5s cubic-bezier(.6, 0, .8, .2) forwards }
+@keyframes dvSpin { to { transform: rotate(1turn) } }
+@keyframes dvFade { from { opacity: 0 } }
+@keyframes dvOut { to { opacity: 0; clip-path: circle(0% at 50% 40%) } }
+@keyframes dvGrid { from { clip-path: circle(0% at 50% 40%) } to { clip-path: circle(120% at 50% 40%) } }
+@keyframes dvGrowX { from { transform: scaleX(0) } }
+@keyframes dvGrowY { from { transform: scaleY(0) } }
+@keyframes dvBr { from { opacity: 0; transform: scale(2.2) } }
+@keyframes dvDraw { from { stroke-dashoffset: 742 } }
+@keyframes dvArcs { from { opacity: 0; transform: rotate(-180deg) scale(.7) } }
+@keyframes dvIris { from { clip-path: circle(0% at 50% 50%); filter: brightness(2.5) saturate(0) } to { clip-path: circle(50% at 50% 50%); filter: none } }
+@keyframes dvScan { 0% { top: 0; opacity: 0 } 8% { opacity: 1 } 40% { top: 100%; opacity: 1 } 46%, 100% { top: 100%; opacity: 0 } }
+@keyframes dvWipe { from { clip-path: inset(0 0 0 100%) } to { clip-path: inset(0 0 0 0) } }
+@keyframes dvFlick { 0% { opacity: 0 } 20% { opacity: 1 } 35% { opacity: .15 } 50% { opacity: 1 } 65% { opacity: .35 } 80%, 100% { opacity: 1 } }
+@keyframes dvUp { from { opacity: 0; transform: translateY(8px) } }
+
+/* Phones on their side: the orbit beside the text */
+@media (orientation: landscape) and (max-height: 520px) {
+  .dv-in { padding: 14px 70px }
+  .dv-body { flex-direction: row; gap: 30px }
+  .dv-stage { width: min(250px, 66vh); height: min(250px, 66vh); width: min(250px, 72cqh); height: min(250px, 72cqh) }
+  .dv-v { display: none }
+  .dv-div { margin: 10px 0 8px }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dv.open *, .dv.open *::before, .dv.open::before, .dv-x-ring { animation: none !important }
+  .dv.open { animation: dvFade .25s ease-out both }
+  .dv.closing { animation: dvGone .2s ease-in forwards }
+}
+@keyframes dvGone { to { opacity: 0 } }
+
 @media (prefers-reduced-motion: reduce) {
   .frame::before, .orbit, .seal, .hdr-t, .foil, .row, .row::before, .badge-glow, .credit-glow, .credit::before, .credit-sheen,
   .w-bg, .w-seal, .w-in, .w-draw, .w-t1, .w-t2, .hosp, .hosp-glow, .hosp-ring, .hosp-disc,
@@ -1161,10 +1287,10 @@ html.tiny .gdi-start { height: 46px; margin-top: 10px }
   <footer class="ftr">
     <div class="credit-wrap" dir="ltr">
       <span class="credit-glow" aria-hidden="true"></span>
-      <div class="credit" lang="en">
+      <button type="button" class="credit" id="dvOpen" lang="en" aria-haspopup="dialog">
         <span class="credit-sheen" aria-hidden="true"></span>
         <span class="credit-text">Created And Design By Eng- Haif AL-Rashed</span>
-      </div>
+      </button>
     </div>
     <button type="button" class="hosp" id="jcOpen" aria-haspopup="dialog" aria-label="نبذة عن المستشفى" data-i18n-aria="jcOpen">
       <span class="hosp-glow" aria-hidden="true"></span>
@@ -1238,6 +1364,49 @@ html.tiny .gdi-start { height: 46px; margin-top: 10px }
           <span id="jcPauseText">إيقاف الحركة</span>
         </button>
         <svg class="jc-pulse" viewBox="0 0 58 18" aria-hidden="true"><path d="M0 10h16l3-7 4 14 3-7h6l2-3 2 3h22"/></svg>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="dv" id="dv" hidden>
+  <section class="dv-in" id="dvCard" role="dialog" aria-modal="true" aria-labelledby="dvName" tabindex="-1">
+    <button type="button" class="dv-x" id="dvClose" aria-label="إغلاق" data-i18n-aria="dvClose">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><circle class="dv-x-ring" cx="24" cy="24" r="22"/><path class="dv-x-x" d="M18.5 18.5 L29.5 29.5 M29.5 18.5 L18.5 29.5"/></svg>
+    </button>
+    <div class="dv-body">
+      <div class="dv-stage">
+        <span class="dv-h" aria-hidden="true"></span>
+        <span class="dv-v" aria-hidden="true"></span>
+        <span class="dv-br dv-br1" aria-hidden="true"></span>
+        <span class="dv-br dv-br2" aria-hidden="true"></span>
+        <span class="dv-br dv-br3" aria-hidden="true"></span>
+        <span class="dv-br dv-br4" aria-hidden="true"></span>
+        <svg class="dv-rings" viewBox="0 0 320 320" aria-hidden="true">
+          <circle class="dv-r-ticks" cx="160" cy="160" r="156"/>
+          <circle class="dv-r-dash" cx="160" cy="160" r="146"/>
+          <circle class="dv-r-arcs" cx="160" cy="160" r="138"/>
+          <circle class="dv-r-in" cx="160" cy="160" r="118"/>
+          <g class="dv-orb">
+            <circle cx="160" cy="160" r="138" fill="none"/>
+            <circle cx="160" cy="22" r="7" fill="rgba(255,197,49,.25)"/>
+            <circle cx="160" cy="22" r="3.5" fill="#FFF3D0"/>
+          </g>
+        </svg>
+        <div class="dv-logo">
+          <img id="dvLogo" data-src="assets/dev-logo-h3.jpg" width="720" height="720" alt="شعار المطور H3" data-i18n-alt="dvLogoAlt" decoding="async" draggable="false">
+          <span class="dv-scan" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="dv-text">
+        <p class="dv-k dv-wipe" dir="rtl" lang="ar">تطوير وتصميم وبرمجة</p>
+        <h2 class="dv-n dv-wipe" id="dvName" dir="rtl" lang="ar">المهندس / هيف الراشد</h2>
+        <p class="dv-e" dir="ltr" lang="en" aria-label="Haif AL-Rashed"><span class="dv-fl" style="--d:2.1s">H</span><span class="dv-fl" style="--d:2.32s">a</span><span class="dv-fl" style="--d:2.18s">i</span><span class="dv-fl" style="--d:2.4s">f</span><span> </span><span class="dv-fl" style="--d:2.26s">A</span><span class="dv-fl" style="--d:2.14s">L</span><span class="dv-fl" style="--d:2.44s">-</span><span class="dv-fl" style="--d:2.22s">R</span><span class="dv-fl" style="--d:2.36s">a</span><span class="dv-fl" style="--d:2.12s">s</span><span class="dv-fl" style="--d:2.3s">h</span><span class="dv-fl" style="--d:2.48s">e</span><span class="dv-fl" style="--d:2.2s">d</span></p>
+        <span class="dv-div" aria-hidden="true"></span>
+        <p class="dv-a dv-wipe" dir="rtl" lang="ar">مستشفى الجهراء - منطقة الجهراء الصحية</p>
+        <p class="dv-ae dv-up" dir="ltr" lang="en">Jahra Hospital - AL-Jahra Health Region</p>
+        <p class="dv-a dv-a2 dv-wipe" dir="rtl" lang="ar">قسم نظم المعلومات</p>
+        <p class="dv-ae dv-ae2 dv-up" dir="ltr" lang="en">IT Section</p>
       </div>
     </div>
   </section>
@@ -1358,6 +1527,8 @@ html.tiny .gdi-start { height: 46px; margin-top: 10px }
       skip: 'تخطي شاشة الترحيب',
       jcOpen: 'نبذة عن المستشفى',
       jcClose: 'إغلاق النبذة',
+      dvClose: 'إغلاق',
+      dvLogoAlt: 'شعار المطور H3',
       jcTitle: 'مستشفى الجهراء الجديد',
       jcSub: 'مدينة الجهراء الطبية',
       jcLogoAlt: 'شعار مستشفى الجهراء الجديد',
@@ -1412,6 +1583,8 @@ html.tiny .gdi-start { height: 46px; margin-top: 10px }
       skip: 'Skip the welcome screen',
       jcOpen: 'About the hospital',
       jcClose: 'Close',
+      dvClose: 'Close',
+      dvLogoAlt: 'Developer logo H3',
       jcTitle: 'New Jahra Hospital',
       jcSub: 'Jahra Medical City',
       jcLogoAlt: 'New Jahra Hospital logo',
@@ -1604,6 +1777,88 @@ html.tiny .gdi-start { height: 46px; margin-top: 10px }
     }
   });
   setTimeout(warmCard, 4500);
+
+  // Developer card (approved canvas model 5, the engineering orbit), opened by the credit pill at the bottom.
+  // It closes with its close button or Esc; a tap elsewhere does nothing.
+  var dv = document.getElementById('dv');
+  var dvCard = document.getElementById('dvCard');
+  var dvOpenBtn = document.getElementById('dvOpen');
+  var dvClose = document.getElementById('dvClose');
+  var dvLogo = document.getElementById('dvLogo');
+  var dvTimer = 0, dvFocusTimer = 0, dvWarm = null, dvBusy = false;
+
+  // Fetch and decode the logo and the card fonts before the first opening, so nothing pops in while it moves.
+  function warmDev() {
+    if (dvWarm) return dvWarm;
+    if (!dvLogo.getAttribute('src')) dvLogo.src = dvLogo.getAttribute('data-src');
+    if (!window.Promise) { dvWarm = { then: function (fn) { fn(); } }; return dvWarm; }
+    var waits = [];
+    if (dvLogo.decode) waits.push(dvLogo.decode().catch(function () {}));
+    if (document.fonts && document.fonts.load) {
+      ['800 30px "Tajawal"', '700 15px "Tajawal"', '500 16px "Tajawal"', '600 15px "Montserrat"', '500 11px "Montserrat"'].forEach(function (font) {
+        waits.push(document.fonts.load(font, 'هيف Haif').catch(function () {}));
+      });
+    }
+    dvWarm = Promise.all(waits);
+    return dvWarm;
+  }
+  function devBehind(off) {
+    app.inert = off;
+    if (off) app.setAttribute('aria-hidden', 'true');
+    else app.removeAttribute('aria-hidden');
+    root.classList[off ? 'add' : 'remove']('dv-on');
+  }
+  function showDev() {
+    clearTimeout(dvTimer);
+    dv.classList.remove('closing', 'open');
+    dv.hidden = false;
+    void dv.offsetWidth; // replay the whole motion on every opening
+    dv.classList.add('open');
+    devBehind(true);
+    clearTimeout(dvFocusTimer);
+    dvFocusTimer = setTimeout(function () {
+      try { dvCard.focus({ preventScroll: true }); } catch (e) { dvCard.focus(); }
+    }, 600);
+  }
+  function openDev() {
+    if (dvBusy || (!dv.hidden && !dv.classList.contains('closing'))) return;
+    dvBusy = true;
+    var done = false;
+    var go = function () {
+      if (done) return;
+      done = true;
+      dvBusy = false;
+      showDev();
+    };
+    warmDev().then(go);
+    setTimeout(go, 450); // a slow network never holds the card back for long
+  }
+  function closeDev() {
+    if (dv.hidden || dv.classList.contains('closing')) return;
+    clearTimeout(dvFocusTimer);
+    dv.classList.add('closing'); // keep .open so nothing inside jumps while the layer closes
+    devBehind(false);
+    dvTimer = setTimeout(function () {
+      dv.hidden = true;
+      dv.classList.remove('closing', 'open');
+      try { dvOpenBtn.focus({ preventScroll: true }); } catch (e) { dvOpenBtn.focus(); }
+    }, calm.matches ? 220 : 520);
+  }
+  dvOpenBtn.addEventListener('touchstart', warmDev, { passive: true });
+  dvOpenBtn.addEventListener('mousedown', warmDev);
+  dvOpenBtn.addEventListener('click', openDev);
+  dvClose.addEventListener('click', closeDev);
+  dv.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' || event.key === 'Esc') {
+      event.preventDefault();
+      closeDev();
+    } else if (event.key === 'Tab') {
+      // The close button is the only stop inside the card
+      event.preventDefault();
+      dvClose.focus();
+    }
+  });
+  setTimeout(warmDev, 6000);
 
   // Password reset guide (approved canvas model 3, the spotlight), opened by the explain button on the reset card.
   // The light dims each screenshot except the place to act; when a step has several actions it visits them in order.
